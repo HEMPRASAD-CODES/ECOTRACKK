@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Rewards - VIT EcoTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5fce8;
+            font-family: "Arial", sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #2196f3;
+            transition: margin-left 0.3s;
+            padding: 10px 15px;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #fff;
+            border-right: 2px solid #ddd;
+            transition: 0.3s;
+            padding-top: 20px; /* Adjusted padding to remove space above heading */
+            z-index: 1000;
+        }
+        .sidebar-open .navbar {
+            margin-left: 250px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #0d47a1;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .open-btn {
+            font-size: 20px;
+            cursor: pointer;
+            margin: 10px;
+            color: white;
+        }
+        .main {
+            transition: margin-left 0.3s;
+            padding: 20px;
+            margin-left: 0;
+        }
+        .close-sidebar-btn {
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: none;
+        }
+        .navbar a,
+        .navbar .dropdown-menu a {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #dfffd6 !important;
+        }
+        main {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .content-card {
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: white;
+        }
+        .content-card:hover {
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        footer {
+            color: white;
+            background-color: #2196f3;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        footer h2 {
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background-color: #2196f3;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+            font-family: Arial, sans-serif;
+        }
+        .logout-btn:hover {
+            background-color: #0d47a1;
+            transform: scale(1.05);
+        }
+        .logout-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .rewards-container {
+            width: 60%;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .reward {
+            background: #f1f1f1;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #0d47a1;
+            transition: transform 0.3s ease;
+        }
+        .reward:hover {
+            transform: scale(1.02);
+            background: #e0e0e0;
+        }
+        h2 {
+            color: #0d47a1;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="open-btn" onclick="toggleSidebar()">&#9776; Menu</span>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <h2 class="text-center" style="color: black; font-size: 24px; white-space: nowrap;">EcoTrack Menu</h2>
+        <span class="close-sidebar-btn" onclick="toggleSidebar()">&#10005; Close</span>
+        <a href="/index">Home</a>
+        <a href="/about">About</a>
+        <a href="/initiatives">Initiatives</a>
+        <a href="/events">Events</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contact</a>
+        <a href="/food-wastage">Parking Slot</a>
+        <a href="/food-donation">Food Donation</a>
+        <a href="/ecoroute">Eco-Route</a>
+        <a href="/blood-donation">Blood Donation</a>
+        <a href="#" class="logout-btn" onclick="performLogout()">Logout</a>
+    </div>
+
+    <div class="main" id="main-content">
+        <main>
+            <div class="rewards-container">
+                <h2>Your Current XP: <strong>{{ current_xp }}</strong></h2>
+                {% if user_rewards %}
+                    <h2>Congratulations! You've earned the following rewards:</h2>
+                    <div>
+                        {% for reward in user_rewards %}
+                            <div class="reward">{{ reward }}</div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <h2>No rewards yet!</h2>
+                    <p style="color: #0d47a1; text-align: center;">Keep earning XP to unlock exciting rewards!</p>
+                {% endif %}
+            </div>
+        </main>
+
+        <footer>
+            <h2>Thank you for being a part of our community!</h2>
+            <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px";
+                mainContent.style.marginLeft = "0";
+                document.body.classList.remove("sidebar-open");
+            } else {
+                sidebar.style.left = "0px";
+                mainContent.style.marginLeft = "250px";
+                document.body.classList.add("sidebar-open");
+            }
+        }
+
+        function performLogout() {
+            // Add your logout logic here
+            // This could be a redirecting to a logout route, clearing session, etc.
+            window.location.href = "/logout"; // Example: redirect to logout route
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

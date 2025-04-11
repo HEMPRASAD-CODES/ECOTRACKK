@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery - VIT EcoTrack</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      body {
+        background-color: #f5fce8;
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+      .navbar {
+        background-color: #2196f3;
+        transition: margin-left 0.3s;
+        padding: 10px 15px;
+      }
+      .sidebar {
+        height: 100%;
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        background-color: #fff;
+        border-right: 2px solid #ddd;
+        transition: 0.3s;
+        padding-top: 20px; /* Adjusted padding */
+        z-index: 1000;
+      }
+      .sidebar-open .navbar {
+        margin-left: 250px;
+      }
+      .sidebar a {
+        padding: 10px 15px;
+        text-decoration: none;
+        font-size: 18px;
+        color: #0d47a1;
+        display: block;
+        transition: 0.3s;
+      }
+      .sidebar a:hover {
+        background-color: #f1f1f1;
+      }
+      .open-btn {
+        font-size: 20px;
+        cursor: pointer;
+        margin: 10px;
+        color: white;
+      }
+      .navbar a,
+      .navbar .dropdown-menu a {
+        color: white !important;
+        transition: color 0.3s ease;
+      }
+      .navbar a:hover {
+        color: #dfffd6 !important;
+      }
+      main {
+        padding: 40px 20px;
+        text-align: center;
+      }
+      h2 {
+        color: #0d47a1;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+      .content-card {
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+        max-width: 800px;
+        background-color: white;
+        transition: box-shadow 0.3s ease;
+      }
+      .content-card:hover {
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+      }
+      .carousel {
+        width: 80%;
+        margin: 20px auto;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .slider {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        transition: transform 0.5s ease;
+      }
+      .slider section {
+        min-width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: white;
+        opacity: 0;
+        z-index: 0;
+        transition: all 0.5s ease;
+      }
+      .slider section img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+      .slider section.active {
+        opacity: 1;
+        z-index: 1;
+      }
+      .right,
+      .left {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        cursor: pointer;
+        transform: translateY(-50%);
+        background: rgba(33, 150, 243, 0.7);
+        border: none;
+        border-radius: 50%;
+        padding: 10px;
+        color: white;
+      }
+      .right {
+        right: 10px;
+      }
+      .left {
+        left: 10px;
+      }
+      footer {
+        color: white;
+        background-color: #2196f3;
+        text-align: center;
+        padding: 40px 20px;
+      }
+      footer h2 {
+        color: white;
+        margin-bottom: 20px;
+      }
+      .close-sidebar-btn {
+        font-size: 20px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        display: none;
+      }
+      main {
+        transition: margin-left 0.3s;
+        padding: 20px;
+        margin-left: 0;
+      }
+      .logout-btn {
+        background-color: #2196f3;
+        color: black; /* Black text */
+        padding: 12px 20px;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+        font-family: Arial, sans-serif;
+      }
+      .logout-btn:hover {
+        background-color: #0d47a1;
+        transform: scale(1.05);
+      }
+      .logout-btn:active {
+        transform: scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <span class="open-btn" onclick="toggleSidebar()">&#9776; Menu</span>
+        <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
+      </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+      <h2 class="text-center" style="color: black">EcoTrack Menu</h2>
+      <span class="close-sidebar-btn" onclick="toggleSidebar()">
+        &#10005; Close
+      </span>
+      <a href="/index">Home</a>
+      <a href="/about">About</a>
+      <a href="/initiatives">Initiatives</a>
+      <a href="/events">Events</a>
+      <a href="/faq">FAQ</a>
+      <a href="/contact">Contact</a>
+      <a href="/food-wastage">Parking Slot</a>
+      <a href="/food-donation">Food Donation</a>
+      <a href="/ecoroute">Eco-Route</a>
+      <a href="/blood-donation">Blood Donation</a>
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+    <main id="main-content">
+      <div class="content-card">
+        <h2>Gallery</h2>
+        <div class="carousel">
+          <div class="slider">
+            <section class="active">
+              <img
+                src="{{ url_for('static', filename='images/i01.jpg') }}"
+                alt="Tree Planting"
+              />
+              <h3>Tree Planting</h3>
+              <p>Snapshots of our tree-planting events on campus.</p>
+            </section>
+            <section>
+              <img
+                src="{{ url_for('static', filename='images/i02.jpg') }}"
+                alt="Solar Panels"
+              />
+              <h3>Solar Panels</h3>
+              <p>Check out our renewable energy initiatives.</p>
+            </section>
+          </div>
+          <button class="right">
+            <i class="material-icons">keyboard_arrow_right</i>
+          </button>
+          <button class="left">
+            <i class="material-icons">keyboard_arrow_left</i>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <section>
+        <h2>Contact Us</h2>
+        <address>
+          VIT EcoTrack Team<br />
+          Vellore Institute of Technology<br />
+          Email:
+          <a href="mailto:ecotrack@vit.ac.in" class="text-light"
+            >ecotrack@vit.ac.in</a
+          ><br />
+          Phone: +91-1234567890
+        </address>
+      </section>
+      <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+    </footer>
+
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("main-content");
+
+        if (sidebar.style.left === "0px") {
+          sidebar.style.left = "-250px";
+          mainContent.style.marginLeft = "0";
+          document.body.classList.remove("sidebar-open");
+        } else {
+          sidebar.style.left = "0px";
+          mainContent.style.marginLeft = "250px";
+          document.body.classList.add("sidebar-open");
+        }
+      }
+
+      let numberOfSlides = document.querySelectorAll(".slider section").length;
+      const right = document.querySelector(".right");
+      const left = document.querySelector(".left");
+      const slider = document.querySelector(".slider");
+      let sectionIndex = 0;
+
+      function reset() {
+        const sections = slider.children;
+        for (let i = 0; i < sections.length; i++) {
+          sections[i].classList.remove("active");
+        }
+      }
+
+      right.addEventListener("click", function () {
+        reset();
+        sectionIndex =
+          sectionIndex < numberOfSlides - 1
+            ? sectionIndex + 1
+            : numberOfSlides - 1;
+        slider.children[sectionIndex].classList.add("active");
+        slider.style.transform = `translateX(-${sectionIndex * 100}%)`;
+      });
+
+      left.addEventListener("click", function () {
+        reset();
+        sectionIndex = sectionIndex > 0 ? sectionIndex - 1 : 0;
+        slider.children[sectionIndex].classList.add("active");
+        slider.style.transform = `translateX(-${sectionIndex * 100}%)`;
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        gsap.from(".navbar", {
+          duration: 1,
+          y: -50,
+          opacity: 0,
+          ease: "bounce",
+        });
+        gsap.from(".content-card", {
+          duration: 1,
+          opacity: 0,
+          y: 20,
+          delay: 0.5,
+        });
+        gsap.from("footer", { duration: 1, y: 50, opacity: 0, delay: 1 });
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

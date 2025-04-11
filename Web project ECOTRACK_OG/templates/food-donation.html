@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Donation - VIT EcoTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+        background-color: #f5fce8;
+        font-family: "Arial", sans-serif;
+        overflow-x: hidden;
+        margin: 0;
+      }
+      .navbar {
+        background-color: #2196f3;
+        transition: margin-left 0.3s;
+        padding: 10px 15px;
+      }
+      .sidebar {
+        height: 100%;
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        background-color: #fff;
+        border-right: 2px solid #ddd;
+        transition: 0.3s;
+        padding-top: 60px;
+        z-index: 1000;
+      }
+      .sidebar-open .navbar {
+        margin-left: 250px;
+      }
+      .sidebar a {
+        padding: 10px 15px;
+        text-decoration: none;
+        font-size: 18px;
+        color: #0d47a1;
+        display: block;
+        transition: 0.3s;
+      }
+      .sidebar a:hover {
+        background-color: #f1f1f1;
+      }
+      .open-btn {
+        font-size: 20px;
+        cursor: pointer;
+        margin: 10px;
+      }
+      .main {
+        transition: margin-left 0.3s;
+        padding: 20px;
+        margin-left: 0;
+      }
+      .close-sidebar-btn {
+        font-size: 20px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        display: none;
+      }
+      .navbar a,
+      .navbar .dropdown-menu a {
+        color: white !important;
+        transition: color 0.3s ease;
+      }
+      .navbar a:hover {
+        color: #dfffd6 !important;
+      }
+        .main {
+            transition: margin-left 0.3s;
+            padding: 20px;
+            margin-left: 0;
+        }
+        footer {
+            color: white;
+            background-color: #2196F3;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        footer h2 {
+            margin-bottom: 20px;
+        }
+        .content-card {
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: white;
+        }
+        .donation-form {
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .donation-form h3 {
+            color: #0D47A1;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            color: #0D47A1;
+            margin-right: 10px;
+            min-width: 150px;
+            text-align: right;
+            margin-bottom: 0;
+        }
+        .form-control {
+            border-color: #2196F3;
+            flex-grow: 1;
+        }
+        .form-control:focus {
+            border-color: #0D47A1;
+            box-shadow: 0 0 0 0.2rem rgba(13, 71, 161, 0.25);
+        }
+        .btn-primary {
+            background-color: #2196F3;
+            border-color: #2196F3;
+            width: 200px;
+        }
+        .btn-primary:hover {
+            background-color: #0D47A1;
+            border-color: #0D47A1;
+        }
+        .logout-btn {
+        background-color: #2196f3;
+        color: black;
+        padding: 12px 20px;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+        font-family: Arial, sans-serif;
+      }
+      .logout-btn:hover {
+        background-color: #0d47a1;
+        transform: scale(1.05);
+      }
+      .logout-btn:active {
+        transform: scale(0.98);
+      }
+      .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        .popup .checkmark {
+            font-size: 50px;
+            color: green;
+        }
+        .popup button {
+            margin-top: 15px;
+            padding: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .popup button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+          <span class="open-btn" onclick="toggleSidebar()" style="color: white">&#9776; Menu</span>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+  
+      <div class="sidebar" id="sidebar">
+        <h2 class="text-center">EcoTrack Menu</h2>
+        <span class="close-sidebar-btn" onclick="toggleSidebar()">&#10005; Close</span>
+        <a href="/index">Home</a>
+        <a href="/about">About</a>
+        <a href="/initiatives">Initiatives</a>
+        <a href="/events">Events</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contact</a>
+        <a href="/food-wastage">Parking Slot</a>
+        <a href="/ecoroute">Eco-Route</a>
+        <a href="/blood-donation">Blood Donation</a>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+
+    <div class="main" id="main-content">
+        <main>
+            <div class="content-card">
+                <h2>Food Donation Program</h2>
+                <p>
+                    VIT EcoTrack's Food Donation initiative aims to reduce food waste and support those in need. We provide a platform for students and staff to contribute surplus food to local communities and charitable organizations.
+                </p>
+                
+                <h3>Our Food Donation Goals</h3>
+                <ul>
+                    <li>Minimize food waste on campus</li>
+                    <li>Support local communities</li>
+                    <li>Promote social responsibility</li>
+                    <li>Create a sustainable food distribution network</li>
+                </ul>
+            </div>
+
+            <div class="donation-form">
+                <h3>Food Donation</h3>
+                <p>
+                    Help us reduce food waste and support our community by donating
+                    surplus food to nearby orphanages.
+                </p>
+                <div id="donationItems">
+                    <div class="donation-item">
+                        <div class="form-group">
+                            <label for="foodType">Food Type:</label>
+                            <select class="form-control" id="foodType" required>
+                                <option value="">Select Food Type</option>
+                                <option value="cooked">Cooked Meal</option>
+                                <option value="packaged">Packaged Food</option>
+                                <option value="fruits">Fruits/Vegetables</option>
+                                <option value="baked">Baked Goods</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity1">Approximate Quantity (kgs):</label>
+                            <input type="number" class="form-control" id="quantity1" min="0" step="0.5" />
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addDonationItem()">Add Another Item</button>
+                <br /><br />
+                <div class="form-group">
+                    <label for="orphanageSelect">Select Nearby Orphanage:</label>
+                    <select class="form-control" id="orphanageSelect">
+                        <option value="" disabled selected>-Select Orphanage-</option>
+                        <!-- Options will be populated from backend -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pickupTime">Pickup Time:</label>
+                    <input type="datetime-local" class="form-control" id="pickupTime" />
+                </div>
+                <div class="form-group">
+                    <label for="pickupPlace">Pickup Place:</label>
+                    <input type="text" class="form-control" id="pickupPlace" placeholder="Enter pickup location" />
+                </div>
+                <button class="btn btn-primary" onclick="initiateDonation()">Donate Food</button>
+                <div id="confirmationMessage" style="color: green; margin-top: 20px;"></div>
+            </div>
+        </main>
+
+        <footer>
+            <section>
+                <h2>Contact Us</h2>
+                <address>
+                    VIT EcoTrack Team<br>
+                    Vellore Institute of Technology<br>
+                    Email: <a href="mailto:ecotrack@vit.ac.in" class="text-light">ecotrack@vit.ac.in</a><br>
+                    Phone: +91-1234567890
+                </address>
+            </section>
+            <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+        </footer>
+    </div>
+    <div class="popup" id="successPopup">
+        <div class="checkmark">✔</div>
+        <h3>Donation Successful!</h3>
+        <p style="color: green; font-weight: bold;" id="popupDetails"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px";
+                mainContent.style.marginLeft = "0";
+                document.body.classList.remove("sidebar-open");
+            } else {
+                sidebar.style.left = "0px";
+                mainContent.style.marginLeft = "250px";
+                document.body.classList.add("sidebar-open");
+            }
+        }
+        let donationCount = 1;
+
+        function addDonationItem() {
+            donationCount++;
+            const donationItemsDiv = document.getElementById('donationItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'donation-item';
+            newItem.innerHTML = `
+                <div class="form-group">
+                    <label for="foodType${donationCount}">Food Type:</label>
+                    <select class="form-control" id="foodType${donationCount}" required>
+                        <option value="">Select Food Type</option>
+                        <option value="cooked">Cooked Meal</option>
+                        <option value="packaged">Packaged Food</option>
+                        <option value="fruits">Fruits/Vegetables</option>
+                        <option value="baked">Baked Goods</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity${donationCount}">Approximate Quantity (kgs):</label>
+                    <input type="number" class="form-control" id="quantity${donationCount}" min="0" step="0.5" />
+                </div>
+            `;
+            donationItemsDiv.appendChild(newItem);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/api/orphanages')
+                .then(response => response.json())
+                .then(data => {
+                    const orphanageSelect = document.getElementById('orphanageSelect');
+                    data.forEach(orphanage => {
+                        const option = document.createElement('option');
+                        option.value = orphanage.id;
+                        option.textContent = orphanage.name;
+                        orphanageSelect.appendChild(option);
+                    });
+                });
+        });
+
+        function initiateDonation() {
+            const donationItems = document.querySelectorAll(".donation-item");
+            let totalQuantity = 0;
+            let foodTypes = [];
+            const selectedOrphanage = document.getElementById("orphanageSelect").value;
+            const pickupTime = document.getElementById("pickupTime").value;
+            const pickupPlace = document.getElementById("pickupPlace").value;
+
+            donationItems.forEach((item) => {
+                const foodTypeSelect = item.querySelector("select");
+                const quantityInput = item.querySelector("input[type='number']");
+                const selectedFoodType = foodTypeSelect.value;
+                const quantity = parseFloat(quantityInput.value);
+
+                if (selectedFoodType && quantity > 0) {
+                    if (!foodTypes.includes(selectedFoodType)) {
+                        foodTypes.push(selectedFoodType);
+                    }
+                    totalQuantity += quantity;
+                }
+            });
+
+            if (foodTypes.length === 0 || !selectedOrphanage || !pickupTime || !pickupPlace) {
+                document.getElementById("confirmationMessage").innerText = "Please select at least one food type, an orphanage, and enter valid pickup details.";
+                return;
+            }
+
+            const donationData = {
+                orphanage_id: selectedOrphanage,
+                food_type: foodTypes.join(', '),
+                quantity: totalQuantity,
+                pickup_time: pickupTime,
+                pickup_place: pickupPlace
+            };
+
+            fetch('/api/donate_food', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(donationData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const popupDetails = `Food ${data.food_type} of quantity ${data.quantity} kg successfully scheduled for donation at ${pickupPlace} on ${pickupTime}.`;
+                document.getElementById("popupDetails").innerText = popupDetails;
+                showPopup();
+                clearForm();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("confirmationMessage").innerText = "An error occurred while scheduling the donation. Please try again.";
+            });
+        }
+        function showPopup() {
+            document.getElementById('successPopup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('successPopup').style.display = 'none';
+        }
+
+        function clearForm() {
+            document.getElementById("orphanageSelect").selectedIndex = 0;
+            document.getElementById("pickupTime").value = '';
+            document.getElementById("pickupPlace").value = '';
+            const donationItems = document.querySelectorAll(".donation-item");
+            donationItems.forEach((item, index) => {
+                if (index > 0) {
+                    item.remove();
+                } else {
+                    const foodTypeSelect = item.querySelector("select");
+                    const quantityInput = item.querySelector("input[type='number']");
+                    foodTypeSelect.selectedIndex = 0;
+                    quantityInput.value = '';
+                }
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

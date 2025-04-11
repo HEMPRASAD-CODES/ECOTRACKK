@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Slot Booking - VIT EcoTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5fce8;
+            font-family: "Arial", sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            background-color: #2196f3;
+            transition: margin-left 0.3s;
+            padding: 10px 15px;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #fff;
+            border-right: 2px solid #ddd;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+        .sidebar-open .navbar {
+            margin-left: 250px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #0d47a1;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .open-btn {
+            font-size: 20px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .main {
+            transition: margin-left 0.3s;
+            padding: 20px;
+            margin-left: 0;
+            flex-grow: 1;
+        }
+        .close-sidebar-btn {
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: none;
+        }
+        .container {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .slot {
+            margin: 20px auto; 
+            padding: 15px; 
+            border-radius: 15px;
+            max-width: 600px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer; 
+            transition: box-shadow 0.3s ease;
+        }
+        .slot:hover {
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .vacant { 
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #0d47a1;
+        }
+        .occupied { 
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #0d47a1;
+        }
+        .message { 
+            margin: 20px 0; 
+            color: #0d47a1; 
+            font-size: 18px;
+        }
+        .details { 
+            margin-top: 20px; 
+            color: #0d47a1; 
+            font-size: 18px;
+        }
+        #parkingLot {
+            margin: 20px 0;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid #2196f3;
+        }
+        #bookingInputs input, 
+        #bookingInputs button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        #bookButton {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+        }
+        #bookButton:hover {
+            background-color: #0d47a1;
+            transform: scale(1.05);
+        }
+        .logout-btn {
+            background-color: #2196f3;
+            color: black;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top:  20px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+            font-family: Arial, sans-serif;
+        }
+        .logout-btn:hover {
+            background-color: #0d47a1;
+            transform: scale(1.05);
+        }
+        .logout-btn:active {
+            transform: scale(0.98);
+        }
+        footer {
+            color: white;
+            background-color: #2196f3;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: auto;
+        }
+        footer a {
+            color: white !important;
+            text-decoration: underline;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        .popup .checkmark {
+            font-size: 50px;
+            color: green;
+        }
+        .popup button {
+            margin-top: 15px;
+            padding: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .popup button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="open-btn" onclick="toggleSidebar()" style="color: white">&#9776; Menu</span>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <h2 class="text-center">EcoTrack Menu</h2>
+        <span class="close-sidebar-btn" onclick="toggleSidebar()">&#10005; Close</span>
+        <a href="/index">Home</a>
+        <a href="/about">About</a>
+        <a href="/initiatives">Initiatives</a>
+        <a href="/events">Events</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contact</a>
+        <a href="/food-donation">Food Donation</a>
+        <a href="/ecoroute">Eco-Route</a>
+        <a href="/blood-donation">Blood Donation</a>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="main" id="main-content">
+        <div class="container">
+            <h2>Select a Parking Lot</h2>
+            <select id="parkingLot" onchange="fetchSlots()">
+                <option value="">-- Select a Parking Lot --</option>
+            </select>
+
+            <div id="slotsContainer"></div>
+            <div class="message" id="message"></div>
+            <div id="bookingInputs" style="display: none;">
+                <input type="date" id="bookingDate" placeholder="Booking Date">
+                <input type="time" id="startTime" placeholder="Start Time">
+                <input type="time" id="endTime" placeholder="End Time">
+                <button id="bookButton" onclick="bookSlot()">Book Slot</button>
+            </div>
+            <div class="details" id="slotDetails" style="display: none;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <section>
+            <h2>Contact Us</h2>
+            <address>
+                VIT EcoTrack Team<br />
+                Vellore Institute of Technology<br />
+                Email: <a href="mailto:ecotrack@vit.ac.in" class="text-light">ecotrack@vit.ac.in</a><br />
+                Phone: +91-1234567890
+            </address>
+        </section>
+        <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+    </footer>
+
+    <div class="popup" id="successPopup">
+        <div class="checkmark"> ✔</div>
+        <h3>Booking Successful!</h3>
+        <p style="color: green; font-weight: bold;" id="popupDetails"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px";
+                mainContent.style.marginLeft = "0";
+                document.body.classList.remove("sidebar-open");
+            } else {
+                sidebar.style.left = "0px";
+                mainContent.style.marginLeft = "250px";
+                document.body.classList.add("sidebar-open");
+            }
+        }
+
+        async function fetchParkingLots() {
+            const response = await fetch('/api/parking_lots');
+            const lots = await response.json();
+            const parkingLotSelect = document.getElementById('parkingLot');
+
+            lots.forEach(lot => {
+                const option = document.createElement('option');
+                option.value = lot.id;
+                option.textContent = lot.name;
+                parkingLotSelect.appendChild(option);
+            });
+        }
+
+        async function fetchSlots() {
+            const lotId = document.getElementById('parkingLot').value;
+            const slotsContainer = document.getElementById('slotsContainer');
+            slotsContainer.innerHTML = '';
+            document.getElementById('bookingInputs').style.display = 'none';
+            document.getElementById('slotDetails').style.display = 'none';
+
+            if (lotId) {
+                const response = await fetch(`/api/parking_slots/${lotId}`);
+                const slots = await response.json();
+
+                const bikeSlot = slots.filter(slot => slot.slot_type === 'Bike').sort((a, b) => a.id - b.id)[0];
+                const carSlot = slots.filter(slot => slot.slot_type === 'Car').sort((a, b) => a.id - b.id)[0];
+
+                [bikeSlot, carSlot].forEach(slot => {
+                    if (slot) {
+                        const slotDiv = document.createElement('div');
+                        slotDiv.className = 'slot ' + (slot.status === 'Vacant' ? 'vacant' : 'occupied');
+                        slotDiv.textContent = `Slot ID: ${slot.id} - Type: ${slot.slot_type} - Status: ${slot.status}`;
+                        slotDiv.onclick = () => handleSlotClick(slot);
+                        slotsContainer.appendChild(slotDiv);
+                    }
+                });
+            }
+        }
+
+        async function handleSlotClick(slot) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = '';
+
+            if (slot.status === 'Vacant') {
+                document.getElementById('bookingInputs').style.display = 'block';
+                document.getElementById('bookButton').onclick = () => bookSlot(slot);
+                displaySlotDetails(slot);
+            } else {
+                const confirmRelease = confirm("This slot is currently booked. Do you want to release it?");
+                if (confirmRelease) {
+                    const response = await fetch('/api/release_slot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ slot_id: slot.id })
+                    });
+
+                    const result = await response.json();
+                    messageDiv.textContent = result.message;
+                    fetchSlots(); // Refresh slots
+                }
+            }
+        }
+
+        function displaySlotDetails(slot) {
+            const detailsDiv = document.getElementById('slotDetails');
+            detailsDiv.innerHTML = `
+                <h3>Slot Details</h3>
+                <p>Slot ID: ${slot.id}</p>
+                <p>Slot Type: ${slot.slot_type}</p>
+                <p>Status: ${slot.status}</p>
+            `;
+            detailsDiv.style.display = 'block';
+        }
+
+        async function bookSlot(slot) {
+            const bookingDate = document.getElementById('bookingDate').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = '';
+
+            if (bookingDate && startTime && endTime) {
+                const response = await fetch('/api/book_slot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        slot_id: slot.id,
+                        booking_date: bookingDate,
+                        start_time: startTime,
+                        end_time: endTime
+                    })
+                });
+
+                const result = await response.json();
+                messageDiv.textContent = result.message;
+
+                // Display the OTP if booking is successful
+                if (result.otp) {
+                    messageDiv.innerHTML += `<br>Your OTP for this booking is : <strong>${result.otp}</strong>`;
+                    messageDiv.innerHTML += `<br>An SMS with the OTP has been sent to your registered phone number.`;
+                }
+                const popupDetails = `Slot ID: ${slot.id}, Type: ${slot.slot_type}, Booking Date: ${bookingDate}, Start Time: ${startTime}, End Time: ${endTime}`;
+                document.getElementById("popupDetails").innerText = popupDetails;
+                showPopup();
+                displaySlotDetails(slot); // Show details of the booked slot
+                fetchSlots(); // Refresh slots
+            } else {
+                messageDiv.textContent = "Please enter valid booking date, start time, and end time.";
+            }
+        }
+
+        function showPopup() {
+            document.getElementById('successPopup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('successPopup').style.display = 'none';
+        }
+
+        // Fetch parking lots on page load
+        window.onload = fetchParkingLots;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VIT EcoTrack - Blood Donation Management" />
+    <title>VIT EcoTrack - Blood Donation Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            background-color: #f5fce8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            background-color: #2196F3;
+            transition: margin-left 0.3s;
+            padding: 10px 15px;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #fff;
+            border-right: 2px solid #ddd;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+        .sidebar-open .navbar {
+            margin-left: 250px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #0D47A1;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .open-btn {
+            font-size: 20px;
+            cursor: pointer;
+            margin: 10px;
+            color: white;
+        }
+        .main {
+            transition: margin-left 0.3s;
+            padding: 20px;
+            margin-left: 0;
+            flex-grow: 1;
+        }
+        .close-sidebar-btn {
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: none;
+        }
+        .navbar a, .navbar .dropdown-menu a {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #dfffd6 !important;
+        }
+        main {
+            transition: margin-left 0.3s;
+            padding: 40px 20px;
+        }
+        main h2 {
+            color: #0D47A1;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+        }
+        form {
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            color: #0D47A1;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #0D47A1;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        footer {
+            color: white;
+            background-color: #2196F3;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        footer h2 {
+            margin-bottom: 20px;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: #dfffd6;
+        }
+        span {
+            padding-left: 0;
+            padding-right: 30px;
+            color: white;
+        }
+        .logout-btn {
+            background-color: #2196f3;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+        }
+        .logout-btn:hover {
+            background-color: #0d47a1;
+            transform: scale(1.05);
+        }
+        .logout-btn:active {
+            transform: scale(0.98);
+        }
+        .message-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .success-message {
+            color: green;
+        }
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="open-btn" onclick="toggleSidebar()">&#9776; Menu</span>
+            <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <h2 class="text-center">EcoTrack Menu</h2>
+        <span class="close-sidebar-btn" onclick="toggleSidebar()">&#10005; Close</span>
+        <a href="/index">Home</a>
+        <a href="/about">About</a>
+        <a href="/initiatives">Initiatives</a>
+        <a href="/events">Events</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contact</a>
+        <a href="/food-wastage">Parking Slot</a>
+        <a href="/food-donation">Food Donation</a>
+        <a href="/ecoroute">Eco-Route</a>
+        
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="main" id="main-content">
+        <main>
+            <div class="container">
+                <h2>VIT EcoTrack - Blood Donation Management</h2>
+
+                <!-- Message Container -->
+                <div class="message-container" id="messageContainer"></div>
+
+                <!-- Donor Registration Form -->
+                <form id="donorForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name:</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bloodType">Blood Type:</label>
+                        <select id="bloodType">
+                            <option value="">Select</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastDonation">Last Donation Date:</label>
+                        <input type="date" id="lastDonation">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="availability">Availability:</label>
+                        <select id="availability">
+                            <option value="Available">Available</option>
+                            <option value="Not Available">Not Available</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact">Contact Number:</label>
+                        <input type="text" id="contact" required>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="medicalCondition">
+                        <label for="medicalCondition">I have medical conditions that may affect my eligibility.</label>
+                    </div>
+
+                    <button type="submit">Register as Donor</button>
+                </form>
+
+                <!-- Blood Request Form -->
+                <form id="requestForm" style="margin-top: 30px;">
+                    <div class="form-group">
+                        <label for="patientName">Patient Name:</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bloodNeeded">Required Blood Type:</label>
+                        <select id="bloodNeeded">
+                            <option value="">Select</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hospital">Hospital Name:</label>
+                        <input type="text" id="hospital" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urgency">Urgency Level:</label>
+                        <select id="urgency">
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactPerson">Contact Person:</label>
+                        <input type="text" id="contactPerson" required>
+                    </div>
+
+                    <button type="submit">Submit Request</button>
+                </form>
+            </div>
+
+        </main>
+
+        <footer>
+            <section>
+                <h2>Contact Us</h2>
+                <address>
+                    VIT EcoTrack Team<br>
+                    Vellore Institute of Technology<br>
+                    Email: <a href="mailto:ecotrack@vit.ac.in">ecotrack@vit.ac.in</a><br>
+                    Phone: +91-1234567890
+                </address>
+            </section>
+            <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+        </footer>
+
+    </div>
+    <div class="popup" id="successPopup">
+        <div class="checkmark">✔</div>
+        <h3 id="popupTitle">Submission Successful</h3>
+        <p id="popupMessage"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <div class="popup" id="errorPopup">
+        <div class="crossmark">✖</div>
+        <h3 id="errorTitle">No Immediate Requests Found</h3>
+        <p id="errorMessage"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px";
+                mainContent.style.marginLeft = "0";
+                document.body.classList.remove("sidebar-open");
+            } else {
+                sidebar.style.left = "0px";
+                mainContent.style.marginLeft = "250px";
+                document.body.classList.add("sidebar-open");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function showMessage(message, isSuccess) {
+                const messageContainer = document.getElementById("messageContainer");
+                messageContainer.className = isSuccess ? 'message-container success-message' : 'message-container error-message';
+                messageContainer.innerText = message;
+                messageContainer.style.display = 'block';
+            }
+
+            function validateDonorForm() {
+                const fullName = document.getElementById("fullName").value.trim();
+                const bloodType = document.getElementById("bloodType").value;
+                const age = parseInt(document.getElementById("age").value);
+                const lastDonation = new Date(document.getElementById("lastDonation").value);
+                const contact = document.getElementById("contact").value.trim();
+                const medicalCondition = document.getElementById("medicalCondition").checked;
+                const today = new Date();
+                const threeMonthsAgo = new Date();
+                threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+                if (!fullName || !bloodType || !age || !contact) {
+                    showMessage("All fields are required!", false);
+                    return false;
+                }
+                if (age < 18) {
+                    showMessage("You must be at least 18 years old to register as a donor.", false);
+                    return false;
+                }
+                if (lastDonation && lastDonation > threeMonthsAgo) {
+                    showMessage("Your last donation should be at least 3 months ago.", false);
+                    return false;
+                }
+                if (medicalCondition) {
+                    showMessage("You are not eligible to donate due to medical conditions.", false);
+                    return false;
+                }
+                return true;
+            }
+
+            function validateRequestForm () {
+                const patientName = document.getElementById("patientName").value.trim();
+                const bloodNeeded = document.getElementById("bloodNeeded").value;
+                const hospital = document.getElementById("hospital").value.trim();
+                const urgency = document.getElementById("urgency").value;
+                const contactPerson = document.getElementById("contactPerson").value.trim();
+
+                if (!patientName || !bloodNeeded || !hospital || !urgency || !contactPerson) {
+                    showMessage("All fields are required!", false);
+                    return false;
+                }
+                return true;
+            }
+
+            document.getElementById("donorForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                if (validateDonorForm()) {
+                    const donorData = {
+                        blood_type: document.getElementById("bloodType").value,
+                        contact: document.getElementById("contact").value,
+                        location: document.getElementById("hospital").value,
+                        availability: document.getElementById("availability").value
+                    };
+
+                    fetch('/api/register_donor', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donorData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showMessage(data.message, true);
+                        document.getElementById("donorForm").reset();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('An error occurred while registering the donor.', false);
+                    });
+                }
+            });
+
+            document.getElementById("requestForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                if (validateRequestForm()) {
+                    const requestData = {
+                        blood_type: document.getElementById("bloodNeeded").value,
+                        urgency: document.getElementById("urgency").value,
+                        hospital: document.getElementById("hospital").value
+                    };
+
+                    fetch('/api/request_blood', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showMessage(data.message, true);
+                        document.getElementById("requestForm").reset();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('An error occurred while submitting the request.', false);
+                    });
+                }
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
