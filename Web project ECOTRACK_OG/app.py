@@ -10,6 +10,97 @@ import random
 import os
 import dotenv
 from dotenv import load_dotenv
+from flask import Flask, redirect, request, session, url_for, render_template
+from google_auth_oauthlib.flow import Flow
+import os
+import requests
+import json
+app = Flask(__name__)
+app.secret_key = 'achp-2005-'  # Ensure this is secure
+
+GOOGLE_CLIENT_ID = '57739675915-v6b026qitqtqfpb6uipb96u72id72bub.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = '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'
+SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read']
+REDIRECT_URI = 'http://localhost:5000/oauth2callback'
+@app.route('/authorize')
+def authorize():
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": [REDIRECT_URI]
+            }
+        },
+        scopes=SCOPES,
+        redirect_uri=REDIRECT_URI
+    )
+    authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    session['state'] = state
+    return redirect(authorization_url)
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    state = session['state']
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": [REDIRECT_URI]
+            }
+        },
+        scopes=SCOPES,
+        state=state,
+        redirect_uri=REDIRECT_URI
+    )
+    flow.fetch_token(authorization_response=request.url)
+
+    credentials = flow.credentials
+    session['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+
+    return redirect('/get_steps')
+
+
+
+
+def fetch_steps_data(credentials):
+    # Example API call to fetch steps data
+    headers = {
+        'Authorization': f'Bearer {credentials.token}',
+        'Content-Type': 'application/json',
+    }
+    response = requests.get('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', headers=headers)
+    if response.status_code == 200:
+        return response.json()  # Return the steps data
+    else:
+        return None  # Handle errors appropriately
+    
+def get_steps_data():
+    if 'credentials' not in session:
+        return None
+
+    credentials = session['credentials']
+    headers = {
+        'Authorization': f'Bearer {credentials.token}',
+        'Content-Type': 'application/json',
+    }
+    response = requests.get('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', headers=headers)
+    if response.status_code == 200:
+        return response.json()  # Return the steps data
+    else:
+        return None  # Handle errors appropriately
 
 app = Flask(__name__)
 # Database Configuration
@@ -534,7 +625,8 @@ class ContactFormSubmission(db.Model):
     email = db.Column(db.String(100), nullable=False)
     subject = db.Column(db.String(200), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime)
+    
 @app.route('/save_contact', methods=['POST'])
 def save_contact():
     data = request.json

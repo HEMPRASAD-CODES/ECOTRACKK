@@ -305,6 +305,20 @@
           </div>
         </div>
       </section>
+      <div class="hero-section text-center text-md-start">
+        <h2>Your Steps Data</h2>
+        {% if steps %}
+            <ul class="list-group">
+                {% for step in steps %}
+                    <li class="list-group-item">
+                        Date: {{ step.date }} - Steps: {{ step.steps }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No steps data available.</p>
+        {% endif %}
+      </div>
 
       <div class="dashboard">
         <div class="card pill-tracking">
