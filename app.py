@@ -1020,7 +1020,7 @@ def get_coordinates(city_name):
  
 # Function to predict CO2 emissions
 def predict_co2_emissions(num_gears, transmission_type, engine_size, fuel_type, cylinders, fuel_consumption_comb):
-    loaded_model = joblib.load('Web project ECOTRACK_OG/templates/model_final.pkl')
+    loaded_model = joblib.load('templates/model_final.pkl')
 
     transmission_type_mapping = {'A': 0, 'AM': 1, 'AS': 2, 'AV': 3, 'M': 4}
     fuel_type_mapping = {'D': 0, 'E': 1, 'N': 2, 'X': 3, 'Z': 4}
