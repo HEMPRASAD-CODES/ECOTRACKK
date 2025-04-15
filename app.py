@@ -276,7 +276,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 # Models
-class user(db.Model, UserMixin):
+class UserData(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -560,12 +560,19 @@ def register():
         password = request.form['password']
         phone_number = request.form['phone_number']
 
-        users = user(username=username, email=email, password=password, phone_number=phone_number)
+        users = UserData(username=username, email=email, password=password, phone_number=phone_number)
         db.session.add(users)
         db.session.commit()
 
-        flash('Registration Successful! Please log in.', 'success')
-        return redirect(url_for('login'))
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration Successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()  # Rollback the session in case of error
+            flash('Error: Could not register user. Please try again.', 'danger')
+            logging.error(f"Error during registration: {e}")
 
     return render_template('register.html')
 
@@ -575,7 +582,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        users = user.query.filter_by(email=email).first()
+        users = UserData.query.filter_by(email=email).first()
 
         if not users:
             flash('Error: No account found with this email.', 'danger')
