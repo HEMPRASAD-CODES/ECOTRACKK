@@ -327,30 +327,6 @@ class Booking(db.Model):
     status = db.Column(db.String(20), default='Active')  # 'Active' or 'Completed'
     otp = db.Column(db.Integer)
 
-class BloodDonor(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    blood_type = db.Column(db.String(5), nullable=False)  # e.g., A+, O-, etc.
-    phone_number = db.Column(db.String(15), nullable=False)
-    location = db.Column(db.String(200), nullable=False)
-    is_available = db.Column(db.Boolean, default=True)
-
-class BloodRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    blood_type = db.Column(db.String(5), nullable=False)
-    urgency = db.Column(db.String(20), nullable=False)  # e.g., Critical, Normal
-    location = db.Column(db.String(200), nullable=False)
-    status = db.Column(db.String(20), default='Pending')  # Pending, Matched, Completed
-
-class ContactFormSubmission(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    subject = db.Column(db.String(200), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime)
-
 
 
 @app.route('/api/parking_lots', methods=['GET'])
@@ -781,6 +757,8 @@ client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 # Models for Blood Donation
 class BloodDonor(db.Model):
+    __tablename__ = 'blood_donor'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     blood_type = db.Column(db.String(5), nullable=False)  # e.g., A+, O-, etc.
@@ -789,6 +767,8 @@ class BloodDonor(db.Model):
     is_available = db.Column(db.Boolean, default=True)
 
 class BloodRequest(db.Model):
+    __tablename__ = 'blood_request'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     blood_type = db.Column(db.String(5), nullable=False)
@@ -983,6 +963,8 @@ def logout():
     return redirect(url_for('login'))  # Redirect to the login page
 
 class ContactFormSubmission(db.Model):
+    __tablename__ = 'contact_form_submission'
+    __table_args__ = {'extend_existing': True}  # Add this line
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
@@ -1915,7 +1897,9 @@ def serve_route_map(filename):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+
+        db.drop_all()  # Drops all tables
+        db.create_all()  # Creates all tables
     threading.Thread(target=auto_release_slots, daemon=True).start()
 
     app.run(debug=True)
