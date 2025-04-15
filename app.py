@@ -575,7 +575,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        user = User.query.filter_by(email=email).first()
+        user = user.query.filter_by(email=email).first()
 
         if not user:
             flash('Error: No account found with this email.', 'danger')
