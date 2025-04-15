@@ -498,7 +498,7 @@ def admin_login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        admin = User.query.filter_by(email=email, is_admin=True).first()
+        admin = UserData.query.filter_by(email=email, is_admin=True).first()
 
         if not admin:
             flash('Error: No admin account found with this email.', 'danger')
@@ -532,7 +532,7 @@ def create_admin():
     username = input("Enter Admin's name:")
     email = input("Enter admin email: ")
     password = input("Enter admin password: ")  # No hashing
-    user = User(username=username, email=email, password=password, is_admin=True)
+    user = UserData(username=username, email=email, password=password, is_admin=True)
     db.session.add(user)
     db.session.commit()
     print(f"Admin user {email} created successfully!")
@@ -545,7 +545,7 @@ def validate_email(email):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return UserData.query.get(int(user_id))
 
 # Home Route
 @app.route('/')
