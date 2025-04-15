@@ -267,7 +267,7 @@ def credentials_to_dict(credentials):
             'scopes': credentials.scopes}
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql12773326:KGWALbzQpP@sql12.freesqldatabase.com/sql12773326'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql12773326:KGWALbzQpP@sql12.freesqldatabase.com:3306/sql12773326'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 
