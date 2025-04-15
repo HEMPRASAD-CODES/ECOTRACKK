@@ -166,10 +166,10 @@ def choose_model():
         model = request.form["model"]
         prompt = request.form["prompt"]
         if model == "sdg":
-            response = sdg_assistant.ask_sdg(prompt)
+            response=""
         elif model == "mental":
-            response = mental_support.ask_mental(prompt)
-    return render_template("choose_model.html", response=response)
+            response=""
+    return render_template("Web project ECOTRACK_OG/templates/choose_model.html", response=response)
 @app.route('/fetch-data')
 def fetch_data():
     if 'credentials' not in session:
@@ -257,7 +257,7 @@ def process_fitness_data(response):
     return formatted_data
 @app.route('/rewards', methods=['GET','POST'])
 def rewards():
-    return render_template("rewards.html")
+    return render_template("Web project ECOTRACK_OG/templates/rewards.html")
 def credentials_to_dict(credentials):
     return {'token': credentials.token,
             'refresh_token': credentials.refresh_token,
@@ -488,7 +488,7 @@ def rewards():
             highest=reward
             
     user_rewards.append(highest)
-    return render_template('rewards.html', current_xp=current_xp, user_rewards=user_rewards)
+    return render_template('Web project ECOTRACK_OG/templates/rewards.html', current_xp=current_xp, user_rewards=user_rewards)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -507,7 +507,7 @@ def admin_login():
                 flash('Admin login successful!', 'success')
                 return redirect(url_for('admin_dashboard'))
 
-    return render_template('admin_login.html')
+    return render_template('Web project ECOTRACK_OG/templates/admin_login.html')
 
 @app.route('/admin/dashboard')
 @login_required
@@ -517,7 +517,7 @@ def admin_dashboard():
         return redirect(url_for('index'))
 
     users = User.query.all()  # Get all users
-    return render_template('admin_dashboard.html', users=users)
+    return render_template('Web project ECOTRACK_OG/templates/admin_dashboard.html', users=users)
 
 import getpass
 from flask.cli import AppGroup
@@ -547,7 +547,7 @@ def load_user(user_id):
 # Home Route
 @app.route('/')
 def home():
-    return render_template('dashboard.html')
+    return render_template('Web project ECOTRACK_OG/templates/dashboard.html')
 
 # Register Route
 @app.route('/register', methods=['GET', 'POST'])
@@ -565,7 +565,7 @@ def register():
         flash('Registration Successful! Please log in.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('register.html')
+    return render_template('Web project ECOTRACK_OG/templates/register.html')
 
 # Login Route
 @app.route('/login', methods=['GET', 'POST'])
@@ -584,31 +584,31 @@ def login():
             flash('Login successful!', 'success')
             return redirect(url_for('index'))
 
-    return render_template('login.html')
+    return render_template('Web project ECOTRACK_OG/templates/login.html')
 
 @app.route('/about', methods=['GET', 'POST'])
 def about():
-    return render_template('about.html')
+    return render_template('Web project ECOTRACK_OG/templates/about.html')
 @app.route('/steps', methods=['GET', 'POST'])
 def steps():
-    return render_template('steps.html')
+    return render_template('Web project ECOTRACK_OG/templates/steps.html')
 @app.route('/mental-burnout', methods=['GET', 'POST'])
 def stress():
-    return render_template('stress-predictor.html')
+    return render_template('Web project ECOTRACK_OG/templates/stress-predictor.html')
 
 @app.route('/admin/parking', methods=['GET', 'POST'])
 def parking():
-    return render_template('parking.html')
+    return render_template('Web project ECOTRACK_OG/templates/parking.html')
 
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     steps_data = fetch_data()
-    return render_template('index.html', username=current_user.username, points=current_user.points, badge=current_user.badge, steps=steps_data)
+    return render_template('Web project ECOTRACK_OG/templates/index.html', username=current_user.username, points=current_user.points, badge=current_user.badge, steps=steps_data)
 
 @app.route('/initiatives')
 def initiatives():
-    return render_template('initiatives.html')
+    return render_template('Web project ECOTRACK_OG/templates/initiatives.html')
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -665,52 +665,52 @@ def predict():
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
-    return render_template('contact.html')
+    return render_template('Web project ECOTRACK_OG/templates/contact.html')
 
 @app.route('/events', methods=['GET', 'POST'])
 def events():
-    return render_template('events.html')
+    return render_template('Web project ECOTRACK_OG/templates/events.html')
 
 @app.route('/faq', methods=['GET', 'POST'])
 def faq():
-    return render_template('faq.html')
+    return render_template('Web project ECOTRACK_OG/templates/faq.html')
 
 @app.route('/food-donation', methods=['GET', 'POST'])
 def food_donation():
-    return render_template('food-donation.html')
+    return render_template('Web project ECOTRACK_OG/templates/food-donation.html')
 
 @app.route('/blood-donation', methods=['GET', 'POST'])
 def blood_donation():
-    return render_template('blood-donation.html')
+    return render_template('Web project ECOTRACK_OG/templates/blood-donation.html')
 
 @app.route('/food-wastage', methods=['GET', 'POST'])
 def food_wastage():
-    return render_template('food-wastage.html')
+    return render_template('Web project ECOTRACK_OG/templates/food-wastage.html')
 
 @app.route('/gallery', methods=['GET', 'POST'])
 def gallery():
-    return render_template('gallery.html')
+    return render_template('Web project ECOTRACK_OG/templates/gallery.html')
 
 @app.route('/outmap', methods=['GET', 'POST'])
 def outmap():
     return render_template('route_map.html')
 @app.route('/leaderboard', methods=['GET', 'POST'])
 def leaderboard():
-    return render_template('leaderboard.html')
+    return render_template('Web project ECOTRACK_OG/templates/leaderboard.html')
 
 @app.route('/ecoroute', methods=['GET', 'POST'])
 def ecoroute():
-    return render_template('idummy.html')
+    return render_template('Web project ECOTRACK_OG/templates/idummy.html')
 
 @app.route('/water-resource', methods=['GET', 'POST'])
 def water_resource():
-    return render_template('water-resource.html')
+    return render_template('Web project ECOTRACK_OG/templates/water-resource.html')
 
 # Dashboard Route
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', username=current_user.username, points=current_user.points, badge=current_user.badge)
+    return render_template('Web project ECOTRACK_OG/templates/dashboard.html', username=current_user.username, points=current_user.points, badge=current_user.badge)
 
 # Orphanage API
 @app.route('/api/orphanages', methods=['GET'])
@@ -820,7 +820,7 @@ def bloodbanks():
 
     print(f"Nearby blood banks found: {len(nearby_blood_banks)}")
 
-    return render_template("bloodbanks.html", blood_banks=nearby_blood_banks, user_location={"lat": user_lat, "lon": user_lon})
+    return render_template("Web project ECOTRACK_OG/templates/bloodbanks.html", blood_banks=nearby_blood_banks, user_location={"lat": user_lat, "lon": user_lon})
 
 # API to Request Blood
 @app.route('/api/request_blood', methods=['POST'])
@@ -1565,11 +1565,11 @@ def plan_route():
 
 @app.route('/final_page')
 def final_page():
-    return render_template('final_page.html')
+    return render_template('Web project ECOTRACK_OG/templates/final_page.html')
 
 @app.route("/route")
 def route_page():
-    return render_template("idummy.html")
+    return render_template("Web project ECOTRACK_OG/templates/idummy.html")
 
 # Main function
 def main(start_city, end_city, stop_loc, vehicle_input,cargo_weight, num_gears, transmission_type, engine_size,fuel_type_start, cylinders, fuel_consumption_comb, air_travel_start):
