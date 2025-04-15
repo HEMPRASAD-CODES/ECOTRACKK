@@ -856,7 +856,7 @@ def request_blood():
         send_sms(donor.phone_number, f"Match Found for your Blood Group {data['blood_type']} at {data['hospital']}.")
 
         # Award 25 XP points to the donor
-        donor_user = User.query.get(donor.user_id)  # Get the donor's user object
+        donor_user = UserData.query.get(donor.user_id)  # Get the donor's user object
         donor_user.points += 25
         db.session.commit()  # Commit the changes to the database
 
