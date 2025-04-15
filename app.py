@@ -39,8 +39,6 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
-
-app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = 'achp-2005-'  # Ensure this is secure
 app.config['SESSION_TYPE'] = 'filesystem'
