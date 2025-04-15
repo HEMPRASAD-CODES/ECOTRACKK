@@ -269,15 +269,11 @@ def credentials_to_dict(credentials):
             'scopes': credentials.scopes}
 
 app = Flask(__name__)
-# Database Configuration
-app.config['MYSQL_HOST'] = 'sql12.freesqldatabase.com'  # Hostname of the database server
-app.config['MYSQL_USER'] = 'sql12773326'                # Your database username
-app.config['MYSQL_PASSWORD'] = 'sql12773326'            # Your database password
-app.config['MYSQL_DB'] = 'sql12773326'                  # The database name
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql12773326:KGWALbzQpP@sql12.freesqldatabase.com/sql12773326'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 
-# Initialize MySQL
-mysql = MySQL(app)
+db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
