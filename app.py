@@ -33,7 +33,7 @@ from scipy.interpolate import interp1d
 
 import numpy as np
 from math import radians, cos, sin, sqrt,atan2
-CSV_FILE = "C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/blood_banks.csv"
+CSV_FILE = "blood_banks.csv"
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -56,7 +56,7 @@ REDIRECT_URI = 'http://localhost:5000/oauth2callback'
 mail = Mail(app)
 
 # Load credentials from a JSON file
-with open('C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/creds.json') as f:
+with open('creds.json') as f:
     credentials = json.load(f)
 
 client_id = credentials['web']['client_id']
@@ -862,8 +862,8 @@ def send_sms(to, message):
 
 def load_model():
     """Load the saved model and scaler"""
-    model = joblib.load('C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/stress_model.pkl')
-    scaler = joblib.load('C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/scaler.pkl')
+    model = joblib.load('stress_model.pkl')
+    scaler = joblib.load('scaler.pkl')
     return model, scaler
 
 import pandas as pd
@@ -1007,7 +1007,7 @@ def get_coordinates(city_name):
  
 # Function to predict CO2 emissions
 def predict_co2_emissions(num_gears, transmission_type, engine_size, fuel_type, cylinders, fuel_consumption_comb):
-    loaded_model = joblib.load('C:/Users/hempr/Downloads/fedex-main (5)/fedex-main (4)/fedex-main/fedex-main/model_final.pkl')
+    loaded_model = joblib.load('model_final.pkl')
 
     transmission_type_mapping = {'A': 0, 'AM': 1, 'AS': 2, 'AV': 3, 'M': 4}
     fuel_type_mapping = {'D': 0, 'E': 1, 'N': 2, 'X': 3, 'Z': 4}
@@ -1591,7 +1591,7 @@ def main(start_city, end_city, stop_loc, vehicle_input,cargo_weight, num_gears, 
 
 
     # Load airport data for air travel logic
-    airport_data = pd.read_csv("C:/Users/hempr/Downloads/fedex-main (5)/fedex-main (4)/fedex-main/fedex-main/airports.csv")
+    airport_data = pd.read_csv("airports.csv")
     airport_data = airport_data[airport_data['type'].str.contains("airport", case=False)]
 
 
