@@ -17,6 +17,8 @@ import os
 import requests
 import json
 from flask_cors import CORS
+from flask_mysqldb import MySQL
+
 from flask_session import Session
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
