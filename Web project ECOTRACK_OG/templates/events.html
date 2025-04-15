@@ -3,394 +3,796 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Events - VIT EcoTrack</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
+    <title>VIT EcoTrack - Events</title>
     <style>
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      /* Base Styles */
+      :root {
+        --background: #050a14;
+        --foreground: #f8fafc;
+        --card: #0f172a;
+        --card-foreground: #f8fafc;
+        --primary: #22c55e;
+        --primary-foreground: #052e16;
+        --secondary: #1e293b;
+        --secondary-foreground: #f8fafc;
+        --muted: #1e293b;
+        --muted-foreground: #94a3b8;
+        --accent: #1e293b;
+        --accent-foreground: #f8fafc;
+        --destructive: #7f1d1d;
+        --destructive-foreground: #f8fafc;
+        --border: #1e293b;
+        --input: #1e293b;
+        --ring: #22c55e;
+        --radius: 0.75rem;
+        
+        /* Sidebar */
+        --sidebar-background: #0a101f;
+        --sidebar-foreground: #f8fafc;
+        --sidebar-accent: #111827;
+        --sidebar-accent-foreground: #f8fafc;
+        --sidebar-border: #1e293b;
+        --sidebar-width: 250px;
       }
 
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
-      @keyframes slideIn {
-        from {
-          transform: translateX(-100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
 
       body {
-        background-color: #f5fce8;
-        font-family: "Arial", sans-serif;
-        margin: 0;
-        color: #0d47a1;
-        position: relative;
-        overflow-x: hidden;
+        background-color: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+        background-image: 
+          radial-gradient(circle at 25% 25%, rgba(0, 128, 0, 0.05) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, rgba(0, 128, 128, 0.05) 0%, transparent 50%);
+        background-attachment: fixed;
       }
-      .navbar {
-        background-color: #2196f3;
-        transition: margin-left 0.3s;
-        padding: 10px 15px;
-        position: relative;
+
+      a {
+        text-decoration: none;
+        color: inherit;
       }
-      .navbar-container {
+
+      ul {
+        list-style: none;
+      }
+
+      /* Layout */
+      .layout {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
+        min-height: 100vh;
       }
-      .navbar-brand {
-        text-align: right;
-        animation: pulse 2s infinite;
-        margin: 0;
-        margin-left: auto;
-      }
-      .open-btn {
-        position: absolute;
-        left: 10px;
-        font-size: 20px;
-        cursor: pointer;
-        color: white;
-      }
+
+      /* Sidebar */
       .sidebar {
-        height: 100%;
-        width: 250px;
+        width: var(--sidebar-width);
+        background-color: var(--sidebar-background);
+        color: var(--sidebar-foreground);
+        height: 100vh;
         position: fixed;
-        top: 0;
         left: -250px;
-        background-color: #fff;
-        border-right: 2px solid #ddd;
-        transition: 0.3s;
-        padding-top: 40px;
-        z-index: 1000;
-        animation: slideIn 0.5s forwards;
-      }
-      .sidebar h2 {
-        color: #0d47a1;
-        margin-bottom: 20px;
-        font-size: 22px;
-        padding-top: 10px;
-        text-align: center;
-      }
-      .sidebar-open .navbar {
-        margin-left: 250px;
-      }
-      .sidebar a {
-        padding: 10px 15px;
-        text-decoration: none;
-        font-size: 18px;
-        color: #0d47a1;
-        display: block;
-        transition: 0.3s;
-        animation: fadeIn 0.5s;
-      }
-      .sidebar a:hover {
-        background-color: #f1f1f1;
-      }
-      .logout-btn {
-        background-color: #2196f3;
-        color: black;
-        padding: 12px 20px;
-        text-decoration: none;
-        display: inline-block;
-        border-radius: 5px;
-        font-size: 18px;
-        font-weight: bold;
-        margin-top: 20px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-        font-family: Arial, sans-serif;
-      }
-      .logout-btn:hover {
-        background-color: #0d47a1;
-        transform: scale(1.05);
-      }
-      .logout-btn:active {
-        transform: scale(0.98);
-      }
-      main {
-        padding: 40px 20px;
-        text-align: center;
-      }
-      main h2 {
-        color: #0d47a1;
-        margin-bottom: 20px;
-        font-size: 28px;
-        animation: fadeIn 1s;
-      }
-      .carousel {
-        width: 80%;
-        margin: 20px auto;
-        position: relative;
-        border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        background-color: white;
-        max-width: 800px;
-        padding: 20px;
-        transition: all 0.3s ease;
-      }
-      .carousel:hover {
-        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-        transform: scale(1.02);
-      }
-      .slider {
-        width: 100%;
-        display: flex;
-        transition: transform 0.5s ease;
-      }
-      .slider section {
-        min-width: 100%;
+        top: 0;
+        z-index: 100;
+        border-right: 1px solid rgba(34, 197, 94, 0.2);
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        z-index: 0;
-        transition: all 0.5s ease;
-        animation: fadeIn 1s forwards;
       }
-      .slider section img {
-        max-width: 100%;
-        max-height: 200px;
-        border-radius: 10px;
-        margin-bottom: 10px;
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .sidebar-header {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo-text {
+        font-size: 1.25rem;
+        font-weight: bold;
+        background: linear-gradient(to right, #4ade80, #059669);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .menu-item {
+        border-radius: var(--radius);
+        transition: background-color 0.2s;
+      }
+
+      .menu-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        transition: background-color 0.1s;
+      }
+
+      .menu-link:hover {
+        background-color: var(--sidebar-accent);
+        color: var(--primary);
+      }
+
+      .menu-link.active {
+        background-color: var(--sidebar-accent);
+        color: var(--primary);
+        font-weight: 500;
+      }
+
+      .menu-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .sidebar-footer {
+        padding: 1rem;
+        border-top: 1px solid rgba(34, 197, 94, 0.2);
+      }
+
+      .logout-link {
+        color: #f87171;
+      }
+
+      .logout-link:hover {
+        color: #ef4444;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-left: 0;
+      }
+
+      .main-content.sidebar-open {
+        margin-left: var(--sidebar-width);
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+
+      /* Events Section */
+      .events-section {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .events-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        background: linear-gradient(to right, #4ade80, #059669);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .events-description {
+        color: #94a3b8;
+        font-size: 1.125rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .events-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .events-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .event-card {
+        background-color: var(--card);
+        border-radius: var(--radius);
+        padding: 2rem;
+        border: 1px solid rgba(34, 197, 94, 0.2);
         transition: transform 0.3s ease;
       }
-      .slider section img:hover {
-        transform: scale(1.05);
+
+      .event-card:hover {
+        transform: translateY(-5px);
       }
-      .slider section h3 {
-        color: #0d47a1;
-        animation: fadeIn 1.5s;
+
+      .event-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: var(--radius);
+        margin-bottom: 1.5rem;
       }
-      .slider section p {
-        color: #0d47a1;
-        animation: fadeIn 2s;
+
+      .event-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: var(--primary);
       }
-      .slider section.active {
-        opacity: 1;
-        z-index: 1;
+
+      .event-date {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
       }
-      .right,
-      .left {
-        position: absolute;
-        top: 50%;
-        z-index: 2;
-        cursor: pointer;
-        transform: translateY(-50%);
+
+      .event-description {
+        color: var(--foreground);
+        margin-bottom: 1.5rem;
+      }
+
+      .event-button {
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        font-weight: 500;
         border: none;
-        border-radius: 50%;
-        padding: 10px;
-        background-color: #2196f3;
-        color: white;
-        transition: all 0.3s ease;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        width: 100%;
       }
-      .right:hover,
-      .left:hover {
-        background-color: #1976d2;
-        transform: translateY(-50%) scale(1.1);
+
+      .event-button:hover {
+        background-color: #16a34a;
       }
-      .right {
-        right: 10px;
+
+      /* Menu Trigger */
+      .menu-trigger {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 101;
+        background-color: var(--card);
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        overflow: hidden;
+        padding: 0;
       }
-      .left {
-        left: 10px;
+
+      .menu-trigger svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--foreground);
+        transition: opacity 0.3s ease;
       }
-      footer {
-        color: white;
-        background-color: #2196f3;
+
+      .menu-trigger .hamburger-icon {
+        opacity: 1;
+      }
+
+      .menu-trigger .close-icon {
+        opacity: 0;
+        position: absolute;
+      }
+
+      .menu-trigger.sidebar-open .hamburger-icon {
+        opacity: 0;
+      }
+
+      .menu-trigger.sidebar-open .close-icon {
+        opacity: 1;
+      }
+
+      .menu-trigger.sidebar-open {
+        left: calc(var(--sidebar-width) + 1rem);
+      }
+
+      /* Overlay */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        display: none;
+      }
+
+      .overlay.visible {
+        display: block;
+      }
+
+      /* Footer */
+      .footer {
+        margin-top: 4rem;
+        padding: 1.5rem;
+        color: #94a3b8;
+        position: relative;
+      }
+
+      .footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 1px;
+        background: rgba(34, 197, 94, 0.2);
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-top: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        .footer-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .footer-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        padding-left: 0.5rem;
+        position: relative;
+      }
+
+      .footer-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 1rem;
+        background: #22c55e;
+      }
+
+      .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-left: 0.5rem;
+        font-style: italic;
+        color: var(--muted-foreground);
+      }
+
+      .contact-info p {
+        margin: 0;
+        padding: 0;
+      }
+
+      .contact-email {
+        color: #4ade80;
+        text-decoration: none;
+      }
+
+      .contact-email:hover {
+        color: #34d399;
+      }
+
+      .quick-links {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding-left: 0.5rem;
+      }
+
+      .quick-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--muted-foreground);
+        transition: color 0.2s;
+      }
+
+      .quick-link:hover {
+        color: #4ade80;
+      }
+
+      .quick-link-icon {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      .footer-copyright {
+        margin-top: 2rem;
         text-align: center;
-        padding: 40px 20px;
-        animation: fadeIn 2s;
-      }
-      footer h2 {
-        margin-bottom: 20px;
-      }
-      footer a {
-        color: white;
-        transition: color 0.3s ease;
-      }
-      footer a:hover {
-        color: #dfffd6;
+        color: var(--muted-foreground);
+        font-style: italic;
       }
     </style>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg">
-      <div class="container-fluid navbar-container">
-        <span class="open-btn" onclick="toggleSidebar()">&#9776; Menu</span>
-        <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
-      </div>
-    </nav>
+    <!-- Mobile Menu Trigger -->
+    <button class="menu-trigger" id="menuTrigger">
+      <svg class="hamburger-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
 
-    <div class="sidebar" id="sidebar">
-      <h2 style="color: black">EcoTrack Menu</h2>
-      <a href="/index">Home</a>
-      <a href="/about">About</a>
-      <a href="/initiatives">Initiatives</a>
-      <a href="/gallery">Gallery</a>
-      <a href="/faq">FAQ</a>
-      <a href="/contact">Contact</a>
-      <a href="/food-wastage">Parking Slot</a>
-      <a href="/food-donation">Food Donation</a>
-      <a href="/ecoroute">Eco-Route</a>
-      <a href="/blood-donation">Blood Donation</a>
-      <a href="/logout" class="logout-btn">Logout</a>
-    </div>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <a href="/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+              <path d="M12 22V15.5"></path>
+              <path d="M22 8.5L12 15.5L2 8.5"></path>
+              <path d="M2 15.5L12 8.5L22 15.5"></path>
+              <path d="M12 2V8.5"></path>
+            </svg>
+            <span class="logo-text">EcoTrack</span>
+          </a>
+        </div>
+        <div class="sidebar-content">
+          <nav class="sidebar-menu">
+            <div class="menu-item">
+              <a href="/index" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Home</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/about" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>About</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/initiatives" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                  <path d="M12 22V15.5"></path>
+                  <path d="M22 8.5L12 15.5L2 8.5"></path>
+                  <path d="M2 15.5L12 8.5L22 15.5"></path>
+                  <path d="M12 2V8.5"></path>
+                </svg>
+                <span>Initiatives</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/events" class="menu-link active">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Events</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/gallery" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span>Gallery</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/faq" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>FAQ</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/contact" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>Contact</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/food-wastage" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2h-4v6h4V2z"></path>
+                  <path d="M6 16a6 6 0 0 1 12 0v6H6v-6z"></path>
+                </svg>
+                <span>Parking Slot</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/food-donation" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                  <line x1="6" y1="1" x2="6" y2="4"></line>
+                  <line x1="10" y1="1" x2="10" y2="4"></line>
+                  <line x1="14" y1="1" x2="14" y2="4"></line>
+                </svg>
+                <span>Food Donation</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/ecoroute" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                </svg>
+                <span>Eco-Route</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <a href="/blood-donation" class="menu-link">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span>Blood Donation</span>
+              </a>
+            </div>
+          </nav>
+        </div>
+        <div class="sidebar-footer">
+          <div class="menu-item">
+            <a href="/logout" class="menu-link logout-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </aside>
 
-    <main id="main-content">
-      <h2>Be a Part of Our Events</h2>
-      <div class="carousel">
-        <div class="slider">
-          <section class="active">
-            <img
-              src="{{ url_for('static', filename='images/i06.jpg') }}"
-              alt="Tree Plantation Drive"
-            />
-            <h3>Tree Plantation Drive</h3>
-            <p>
-              Date: March 15, 2025. Join us in planting 500 saplings around the
-              campus to promote greenery and reduce carbon footprint.
-            </p>
-          </section>
-          <section>
-            <img
-              src="{{ url_for('static', filename='images/i07.jpg') }}"
-              alt="Eco Awareness Workshop"
-            />
-            <h3>Eco Awareness Workshop</h3>
-            <p>
-              Date: April 10, 2025. Interactive sessions to educate participants
-              about sustainable living practices and eco-friendly habits.
-            </p>
-          </section>
-          <section>
-            <img
-              src="{{ url_for('static', filename='images/i08.jpg') }}"
-              alt="Recycling Competition"
-            />
-            <h3>Recycling Competition</h3>
-            <p>
-              Date: May 5, 2025. Showcase your creativity by creating art or
-              useful items using recycled materials.
-            </p>
-          </section>
-          <section>
-            <img
-              src="{{ url_for('static', filename='images/i09.jpg') }}"
-              alt="Solar Energy Expo"
-            />
-            <h3>Solar Energy Expo</h3>
-            <p>Date: June 20, 2025</p>
-            <p>
-              Explore innovative solar energy projects designed by our students
-              and industry experts.
-            </p>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="container">
+          <!-- Events Section -->
+          <section class="events-section">
+            <div>
+              <h1 class="events-title">Upcoming Events</h1>
+              <p class="events-description">
+                Join us in our mission to create a sustainable future. Participate in our upcoming events and make a difference.
+              </p>
+            </div>
+
+            <div class="events-grid">
+              <!-- Event Cards -->
+              <div class="event-card">
+                <img src="{{ url_for('static', filename='images/i06.jpg') }}" alt="Tree Plantation Drive" class="event-image">
+                <h2 class="event-title">Tree Plantation Drive</h2>
+                <p class="event-date">March 15, 2025</p>
+                <p class="event-description">
+                  Join us in planting 500 saplings around the campus to promote greenery and reduce carbon footprint.
+                </p>
+                <button class="event-button">Register Now</button>
+              </div>
+
+              <div class="event-card">
+                <img src="{{ url_for('static', filename='images/i07.jpg') }}" alt="Eco Awareness Workshop" class="event-image">
+                <h2 class="event-title">Eco Awareness Workshop</h2>
+                <p class="event-date">April 10, 2025</p>
+                <p class="event-description">
+                  Interactive sessions to educate participants about sustainable living practices and eco-friendly habits.
+                </p>
+                <button class="event-button">Register Now</button>
+              </div>
+
+              <div class="event-card">
+                <img src="{{ url_for('static', filename='images/i08.jpg') }}" alt="Recycling Competition" class="event-image">
+                <h2 class="event-title">Recycling Competition</h2>
+                <p class="event-date">May 5, 2025</p>
+                <p class="event-description">
+                  Showcase your creativity by creating art or useful items using recycled materials.
+                </p>
+                <button class="event-button">Register Now</button>
+              </div>
+
+              <div class="event-card">
+                <img src="{{ url_for('static', filename='images/i09.jpg') }}" alt="Solar Energy Expo" class="event-image">
+                <h2 class="event-title">Solar Energy Expo</h2>
+                <p class="event-date">June 20, 2025</p>
+                <p class="event-description">
+                  Explore innovative solar energy projects designed by our students and industry experts.
+                </p>
+                <button class="event-button">Register Now</button>
+              </div>
+            </div>
           </section>
         </div>
-        <button class="right">
-          <i class="material-icons">keyboard_arrow_right</i>
-        </button>
-        <button class="left">
-          <i class="material-icons">keyboard_arrow_left</i>
-        </button>
-      </div>
-    </main>
+      </main>
+    </div>
 
-    <footer>
-      <section>
-        <h2>Contact Us</h2>
-        <address>
-          VIT EcoTrack Team<br />
-          Vellore Institute of Technology<br />
-          Email: <a href="mailto:ecotrack@vit.ac.in">ecotrack@vit.ac.in</a
-          ><br />
-          Phone: +91-1234567890
-        </address>
-      </section>
-      <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <h3 class="footer-title">Contact Us</h3>
+          <address class="contact-info">
+            <p>VIT EcoTrack Team</p>
+            <p>Vellore Institute of Technology</p>
+            <p>Email: <a href="mailto:ecotrack@vit.ac.in" class="contact-email">ecotrack@vit.ac.in</a></p>
+            <p>Phone: +91-1234567890</p>
+          </address>
+        </div>
+        <div>
+          <h3 class="footer-title">Quick Links</h3>
+          <div class="quick-links">
+            <a href="/index" class="quick-link">
+              <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Home</span>
+            </a>
+            <a href="/initiatives" class="quick-link">
+              <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+              </svg>
+              <span>Initiatives</span>
+            </a>
+            <a href="/events" class="quick-link">
+              <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Events</span>
+            </a>
+            <a href="/gallery" class="quick-link">
+              <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span>Gallery</span>
+            </a>
+            <a href="/faq" class="quick-link">
+              <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>FAQ</span>
+            </a>
+            <a href="/contact" class="quick-link">
+              <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span>Contact</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+      </div>
     </footer>
 
     <script>
-      function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const mainContent = document.getElementById("main-content");
-
-        if (sidebar.style.left === "0px") {
-          sidebar.style.left = "-250px";
-          mainContent.style.marginLeft = "0";
-          document.body.classList.remove("sidebar-open");
-        } else {
-          sidebar.style.left = "0px";
-          mainContent.style.marginLeft = "250px";
-          document.body.classList.add("sidebar-open");
+      document.addEventListener('DOMContentLoaded', function() {
+        const menuTrigger = document.getElementById('menuTrigger');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        document.body.appendChild(overlay);
+        
+        function toggleSidebar() {
+          const isOpen = sidebar.classList.contains('open');
+          sidebar.classList.toggle('open');
+          mainContent.classList.toggle('sidebar-open');
+          menuTrigger.classList.toggle('sidebar-open');
+          overlay.classList.toggle('visible');
+          
+          // Update aria-expanded attribute for accessibility
+          menuTrigger.setAttribute('aria-expanded', !isOpen);
+          
+          // Prevent body scroll when sidebar is open
+          document.body.style.overflow = isOpen ? '' : 'hidden';
         }
-      }
+        
+        // Initialize sidebar state
+        menuTrigger.setAttribute('aria-expanded', 'false');
+        
+        // Add click event listeners
+        menuTrigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSidebar();
+        });
+        
+        overlay.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSidebar();
+        });
+        
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(e) {
+          if (sidebar.classList.contains('open') && 
+              !sidebar.contains(e.target) && 
+              e.target !== menuTrigger) {
+            toggleSidebar();
+          }
+        });
+        
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function() {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+              toggleSidebar();
+            }
+          }, 250);
+        });
 
-      let numberOfSlides = 4;
-      const right = document.querySelector(".right");
-      const left = document.querySelector(".left");
-      const slider = document.querySelector(".slider");
-      let sectionIndex = 0;
-
-      function reset() {
-        const sections = slider.children;
-        for (let i = 0; i < sections.length; i++) {
-          sections[i].classList.remove("active");
-        }
-      }
-
-      right.addEventListener("click", function () {
-        reset();
-        sectionIndex =
-          sectionIndex < numberOfSlides - 1
-            ? sectionIndex + 1
-            : numberOfSlides - 1;
-        slider.children[sectionIndex].classList.add("active");
-        slider.style.transform = `translateX(-${sectionIndex * 100}%)`;
-      });
-
-      left.addEventListener("click", function () {
-        reset();
-        sectionIndex = sectionIndex > 0 ? sectionIndex - 1 : 0;
-        slider.children[sectionIndex].classList.add("active");
-        slider.style.transform = `translateX(-${sectionIndex * 100}%)`;
+        // Event Registration
+        const eventButtons = document.querySelectorAll('.event-button');
+        eventButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const eventTitle = this.parentElement.querySelector('.event-title').textContent;
+            alert(`Thank you for your interest in "${eventTitle}"! Registration details will be sent to your email.`);
+          });
+        });
       });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

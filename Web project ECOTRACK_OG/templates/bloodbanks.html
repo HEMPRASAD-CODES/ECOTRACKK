@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Blood Banks - VIT EcoTrack</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --background: #050a14;
+            --foreground: #f8fafc;
+            --card: #0f172a;
+            --card-foreground: #f8fafc;
+            --primary: #22c55e;
+            --primary-foreground: #052e16;
+            --secondary: #1e293b;
+            --secondary-foreground: #f8fafc;
+            --muted: #1e293b;
+            --muted-foreground: #94a3b8;
+            --accent: #1e293b;
+            --accent-foreground: #f8fafc;
+            --destructive: #7f1d1d;
+            --destructive-foreground: #f8fafc;
+            --border: #1e293b;
+            --input: #1e293b;
+            --ring: #22c55e;
+            --radius: 0.75rem;
+            
+            /* Sidebar */
+            --sidebar-background: #0a101f;
+            --sidebar-foreground: #f8fafc;
+            --sidebar-accent: #111827;
+            --sidebar-accent-foreground: #f8fafc;
+            --sidebar-border: #1e293b;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 128, 128, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Animated Background Particles */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-particle {
+            position: absolute;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 50%;
+            filter: blur(8px);
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .bg-particle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-particle:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+            background: rgba(0, 128, 128, 0.1);
+        }
+
+        .bg-particle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            top: 80%;
+            left: 30%;
+            animation-delay: -10s;
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            50% {
+                transform: translateY(0) translateX(20px);
+            }
+            75% {
+                transform: translateY(20px) translateX(10px);
+            }
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--foreground);
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            border-radius: 3px;
+        }
+
+        /* Map Container */
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: rgba(10, 16, 31, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--foreground);
+        }
+
+        th {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid rgba(34, 197, 94, 0.2);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted-foreground);
+        }
+
+        tr:hover {
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--background);
+            margin: 15% auto;
+            padding: 2rem;
+            width: 80%;
+            max-width: 600px;
+            border-radius: var(--radius);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .close-button {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-button:hover {
+            color: #ef4444;
+        }
+
+        .modal h2 {
+            color: var(--foreground);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal p {
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Button Styles */
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        /* Page Title */
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #4ade80, #059669);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 30%;
+            height: 3px;
+            background: linear-gradient(to right, #4ade80, #059669);
+            border-radius: 2px;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        /* Menu Trigger */
+        .menu-trigger {
+            display: block;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .menu-trigger.sidebar-open {
+            left: calc(var(--sidebar-width) - 3.5rem);
+        }
+
+        .menu-trigger:hover {
+            background-color: rgba(15, 23, 42, 1);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+            transform: scale(1.05);
+        }
+
+        .menu-trigger svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--foreground);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-trigger:hover svg {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .menu-trigger .close-icon {
+            display: none;
+        }
+
+        .menu-trigger.sidebar-open .hamburger-icon {
+            display: none;
+        }
+
+        .menu-trigger.sidebar-open .close-icon {
+            display: block;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: rgba(10, 16, 31, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--sidebar-foreground);
+            height: 100vh;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(34, 197, 94, 0.3);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.open {
+            left: 0;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar h2 {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--primary);
+            font-size: 1.25rem;
+            background: linear-gradient(to right, #4ade80, #059669);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .sidebar a {
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            font-size: 1rem;
+            color: var(--foreground);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            border-radius: var(--radius);
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(10, 16, 31, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            margin-top: auto;
+            color: var(--muted-foreground);
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(34, 197, 94, 0.3), transparent);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 1rem;
+        }
+
+        .footer-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            padding-left: 0.75rem;
+            position: relative;
+            color: var(--foreground);
+        }
+
+        .footer-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 1rem;
+            background: linear-gradient(to bottom, #22c55e, #16a34a);
+            border-radius: 3px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding-left: 0.75rem;
+            font-style: italic;
+            color: var(--muted-foreground);
+        }
+
+        .contact-info p {
+            margin: 0;
+            padding: 0;
+            transition: transform 0.2s;
+        }
+
+        .contact-info p:hover {
+            transform: translateX(5px);
+        }
+
+        .contact-email {
+            color: #4ade80;
+            text-decoration: none;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .contact-email:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 1px;
+            bottom: 0;
+            left: 0;
+            background-color: #34d399;
+            transform-origin: bottom right;
+            transition: transform 0.2s ease-out;
+        }
+
+        .contact-email:hover {
+            color: #34d399;
+        }
+
+        .contact-email:hover:after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted-foreground);
+            transition: all 0.2s;
+            padding: 0.25rem 0;
+            text-decoration: none;
+        }
+
+        .quick-link:hover {
+            color: #4ade80;
+            transform: translateX(5px);
+            text-decoration: none;
+        }
+
+        .quick-link-icon {
+            width: 1rem;
+            height: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .quick-link:hover .quick-link-icon {
+            transform: rotate(15deg);
+        }
+
+        .footer-copyright {
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--muted-foreground);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Enhanced menu styles */
+        .menu-trigger {
+            transform: translateZ(0);
+            will-change: transform;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+
+        .sidebar {
+            transform: translateX(-100%);
+            will-change: transform;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            left: 0;
+            overscroll-behavior: contain;
+            background: var(--background);
+            border-right: 1px solid var(--border);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            will-change: opacity, visibility;
+            z-index: 999;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 768px) {
+            .menu-trigger {
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .sidebar {
+                width: 85%;
+                max-width: var(--sidebar-width);
+            }
+
+            .sidebar a {
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        @media (hover: none) {
+            .menu-trigger,
+            .sidebar a {
+                cursor: default;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background animation -->
+    <div class="bg-animation">
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+    </div>
+
+    <div class="main" id="main-content">
+        <div class="container">
+            <h1 class="page-title text-center">Nearby Blood Banks</h1>
+            <div id="map" class="map-container mb-4"></div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Contact</th>
+                            <th>Distance (km)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bank in blood_banks %}
+                        <tr>
+                            <td>{{ bank.name }}</td>
+                            <td>{{ bank.address }}</td>
+                            <td>{{ bank.contact_no }}</td>
+                            <td>{{ bank.distance }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying blood bank details -->
+    <div class="modal fade" id="bankDetailsModal" tabindex="-1" aria-labelledby="bankDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bankDetailsModalLabel">Blood Bank Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="bankDetailsContent">
+                    <!-- Details will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Trigger -->
+    <button class="menu-trigger" id="menuTrigger">
+        <svg class="hamburger-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2 class="text-center">EcoTrack</h2>
+        <a href="/index">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Home
+        </a>
+        <a href="/about">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            About
+        </a>
+        <a href="/initiatives">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+            </svg>
+            Initiatives
+        </a>
+        <a href="/events">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Events
+        </a>
+        <a href="/gallery">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            Gallery
+        </a>
+        <a href="/faq">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            FAQ
+        </a>
+        <a href="/contact">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            Contact
+        </a>
+        <a href="/logout" class="logout-btn">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+        </a>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h3 class="footer-title">Contact Us</h3>
+                <address class="contact-info">
+                    <p>VIT EcoTrack Team</p>
+                    <p>Vellore Institute of Technology</p>
+                    <p>Email: <a href="mailto:ecotrack@vit.ac.in" class="contact-email">ecotrack@vit.ac.in</a></p>
+                    <p>Phone: +91-1234567890</p>
+                </address>
+            </div>
+            <div>
+                <h3 class="footer-title">Quick Links</h3>
+                <div class="quick-links">
+                    <a href="/index" class="quick-link">
+                        <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Home</span>
+                    </a>
+                    <a href="/initiatives" class="quick-link">
+                        <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                        </svg>
+                        <span>Initiatives</span>
+                    </a>
+                    <a href="/events" class="quick-link">
+                        <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Events</span>
+                    </a>
+                    <a href="/gallery" class="quick-link">
+                        <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>Gallery</span>
+                    </a>
+                    <a href="/faq" class="quick-link">
+                        <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span>FAQ</span>
+                    </a>
+                    <a href="/contact" class="quick-link">
+                        <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span>Contact</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Redirect with geolocation as query params
+if (!window.location.search.includes('lat')) {
+    navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        // Redirect to the bloodbanks endpoint with lat and lon as query parameters
+        window.location.href = `/bloodbanks?lat=${lat}&lon=${lon}`;
+    }, error => {
+        console.error('Error obtaining geolocation:', error);
+        alert('Unable to retrieve your location. Please enable location services.');
+    });
+}
+
+        function initMap() {
+            const userLocation = { lat: {{ user_location.lat }}, lng: {{ user_location.lon }} };
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: userLocation,
+            });
+
+            new google.maps.Marker({
+                position: userLocation,
+                map,
+                title: "You are here",
+                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            });
+
+            // Create info window for displaying details
+            const infoWindow = new google.maps.InfoWindow();
+            
+            // Add markers with click functionality for each blood bank
+            {% for bank in blood_banks %}
+            const marker{{ loop.index }} = new google.maps.Marker({
+                position: { lat: parseFloat("{{ bank.latitude }}"), lng: parseFloat("{{ bank.longitude }}") },
+                map,
+                title: "{{ bank.name }}",
+            });
+            
+            // Add click listener to each marker
+            marker{{ loop.index }}.addListener("click", () => {
+                // Create info window content with details button
+                const contentString = `
+                    <div class="p-2">
+                        <h5>{{ bank.name }}</h5>
+                        <p class="mb-1"><strong>Address:</strong> {{ bank.address }}</p>
+                        <p class="mb-2"><strong>Distance:</strong> {{ bank.distance }} km</p>
+                        <button class="btn btn-sm btn-primary" 
+                            onclick="showBankDetails('{{ bank.name }}', '{{ bank.address }}', 
+                            '{{ bank.contact_no }}', '{{ bank.distance }}')">
+                            More Details
+                        </button>
+                    </div>
+                `;
+                
+                infoWindow.setContent(contentString);
+                infoWindow.open(map, marker{{ loop.index }});
+            });
+            {% endfor %}
+        }
+
+        // Function to show bank details in modal
+        function showBankDetails(name, address, contact, distance) {
+            document.getElementById('bankDetailsModalLabel').textContent = name;
+            document.getElementById('bankDetailsContent').innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Contact Information</h6>
+                        <p><strong>Address:</strong> ${address}</p>
+                        <p><strong>Phone:</strong> ${contact}</p>
+                        <p><strong>Distance:</strong> ${distance} km from your location</p>
+                        <div class="d-grid gap-2">
+                            <a href="tel:${contact}" class="btn btn-outline-primary">Call Now</a>
+                            <a href="https://maps.google.com/maps?q=${encodeURIComponent(address)}" 
+                               target="_blank" class="btn btn-outline-secondary">Get Directions</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('bankDetailsModal'));
+            modal.show();
+        }
+
+        // Initialize menu functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuTrigger = document.querySelector('.menu-trigger');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            const mainContent = document.querySelector('.main');
+
+            if (!menuTrigger || !sidebar || !overlay || !mainContent) {
+                console.error('Required elements not found');
+                return;
+            }
+
+            function toggleMenu(event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                menuTrigger.classList.toggle('sidebar-open');
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('visible');
+                mainContent.classList.toggle('sidebar-open');
+                
+                // Prevent body scroll when menu is open
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            // Menu trigger click
+            menuTrigger.addEventListener('click', toggleMenu);
+
+            // Overlay click to close
+            overlay.addEventListener('click', toggleMenu);
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (sidebar.classList.contains('open') &&
+                    !sidebar.contains(e.target) &&
+                    !menuTrigger.contains(e.target)) {
+                    toggleMenu();
+                }
+            });
+
+            // Prevent menu close when clicking inside
+            sidebar.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Handle touch gestures
+            let touchStartX = 0;
+            let touchEndX = 0;
+            const swipeThreshold = 50;
+
+            document.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            document.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                const swipeDistance = touchEndX - touchStartX;
+
+                if (Math.abs(swipeDistance) >= swipeThreshold) {
+                    if (swipeDistance > 0 && !sidebar.classList.contains('open')) {
+                        // Right swipe - open menu
+                        toggleMenu();
+                    } else if (swipeDistance < 0 && sidebar.classList.contains('open')) {
+                        // Left swipe - close menu
+                        toggleMenu();
+                    }
+                }
+            }, { passive: true });
+
+            // Close menu on window resize if open
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    if (sidebar.classList.contains('open') && window.innerWidth > 768) {
+                        toggleMenu();
+                    }
+                }, 250);
+            });
+
+            // Fix navigation links
+            const links = document.querySelectorAll('a[href^="/"]');
+            const baseUrl = window.location.origin;
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('/')) {
+                    link.href = baseUrl + href;
+                }
+            });
+        });
+    </script>
+
+    <!-- Add Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Replace YOUR_GOOGLE_MAPS_API_KEY below with your actual API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIJzUcvVRRATz7w25RGDyv9_eXSuQrJl8&callback=initMap" async defer></script>
+</body>
+</html>

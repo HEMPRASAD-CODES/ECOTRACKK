@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #22c55e;
+            --background: #050a14;
+            --card: #0f172a;
+            --text: #f8fafc;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .steps-container {
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .connect-button {
+            background-color: var(--primary);
+            color: var(--background);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .connect-button:hover {
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #94a3b8;
+        }
+        .connected-account {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(34, 197, 94, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.disconnect-button {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.disconnect-button:hover {
+    background-color: #dc2626;
+}
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="card">
+            <h1>Your Fitness Dashboard</h1>
+            <p class="account-info">
+                Please sign in with the Google account connected to your Google Fit data.
+                This is typically the same account you use with the Google Fit app on your phone.
+            </p>
+            <button id="connectButton" class="connect-button">Connect Google Fit</button>
+            <div id="stepsChart" class="steps-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart = null;
+
+        function formatDate(timestamp) {
+            const date = new Date(parseInt(timestamp));
+            return date.toLocaleDateString();
+        }
+
+        function createChart(data) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => formatDate(item.date)),
+                    datasets: [{
+                        label: 'Daily Steps',
+                        data: data.map(item => item.steps),
+                        backgroundColor: '#22c55e',
+                        borderColor: '#16a34a',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#f8fafc'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#f8fafc'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f8fafc'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function fetchStepsData() {
+            try {
+                const response = await fetch('/fetch-steps');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch steps data');
+                }
+                const data = await response.json();
+                createChart(data);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('stepsChart').innerHTML = 
+                    '<p class="loading">Error loading steps data. Please try again.</p>';
+            }
+        }
+
+        document.getElementById('connectButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/authorize');
+                const data = await response.json();
+                window.location.href = data.authUrl;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Check if user is authenticated and fetch data
+        fetch('/fetch-steps')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Not authenticated');
+            })
+            .then(data => {
+                createChart(data);
+                document.getElementById('connectButton').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('connectButton').style.display = 'block';
+            });
+    </script>
+</body>
+</html>

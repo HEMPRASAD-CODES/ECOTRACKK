@@ -1,234 +1,1385 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About Us - VIT EcoTrack</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background-color: #f5fce8;
-        font-family: "Arial", sans-serif;
-        overflow-x: hidden;
-        margin: 0;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIT EcoTrack - Dashboard</title>
+  <!-- Add the Lovable script tag -->
+  <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  <style>
+    /* Base Styles with Enhanced Visuals */
+    :root {
+      --background: #050a14;
+      --foreground: #f8fafc;
+      --card: #0f172a;
+      --card-foreground: #f8fafc;
+      --primary: #22c55e;
+      --primary-foreground: #052e16;
+      --secondary: #1e293b;
+      --secondary-foreground: #f8fafc;
+      --muted: #1e293b;
+      --muted-foreground: #94a3b8;
+      --accent: #1e293b;
+      --accent-foreground: #f8fafc;
+      --destructive: #7f1d1d;
+      --destructive-foreground: #f8fafc;
+      --border: #1e293b;
+      --input: #1e293b;
+      --ring: #22c55e;
+      --radius: 0.75rem;
+      
+      /* Sidebar */
+      --sidebar-background: #0a101f;
+      --sidebar-foreground: #f8fafc;
+      --sidebar-accent: #111827;
+      --sidebar-accent-foreground: #f8fafc;
+      --sidebar-border: #1e293b;
+      --sidebar-width: 250px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 85%, rgba(0, 128, 128, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background Particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(34, 197, 94, 0.03) 0%, transparent 20%),
+        radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 20%),
+        radial-gradient(circle at 40% 70%, rgba(236, 72, 153, 0.03) 0%, transparent 20%),
+        radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 20%);
+      z-index: -1;
+      animation: backgroundShift 30s ease infinite alternate;
+    }
+
+    @keyframes backgroundShift {
+      0% {
+        background-position: 0% 0%;
       }
-      .navbar {
-        background-color: #2196f3;
-        transition: margin-left 0.3s;
-        padding: 10px 15px;
+      100% {
+        background-position: 100% 100%;
       }
+    }
+
+    /* Floating Particles */
+    .floating-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      background-color: rgba(34, 197, 94, 0.2);
+      border-radius: 50%;
+      filter: blur(4px);
+      animation: float-around 15s linear infinite;
+    }
+
+    @keyframes float-around {
+      0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.5;
+      }
+      90% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(20vw) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    /* Glass Effect for Cards */
+    .glass-card {
+      background-color: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(34, 197, 94, 0.15);
+      box-shadow: 
+        0 8px 20px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 0 20px rgba(34, 197, 94, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(34, 197, 94, 0.3);
+      box-shadow: 
+        0 12px 28px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 0 30px rgba(34, 197, 94, 0.15);
+      transform: translateY(-5px);
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar with Enhanced Styling */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: rgba(10, 16, 31, 0.95);
+      color: var(--sidebar-foreground);
+      height: 100vh;
+      position: fixed;
+      left: -250px;
+      top: 0;
+      z-index: 1000;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-right: 1px solid rgba(34, 197, 94, 0.3);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.3s ease;
+      text-decoration: none;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .logo svg {
+      filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.5));
+      transition: transform 0.3s ease;
+    }
+
+    .logo:hover svg {
+      transform: rotate(15deg);
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: bold;
+      background: linear-gradient(to right, #4ade80, #059669);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    .sidebar-content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background-color: rgba(34, 197, 94, 0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .menu-item {
+      border-radius: var(--radius);
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      color: var(--sidebar-foreground);
+      font-size: 0.95rem;
+      opacity: 0.85;
+      text-decoration: none;
+    }
+
+    .menu-link:hover {
+      background-color: rgba(17, 24, 39, 0.8);
+      color: var(--primary);
+      transform: translateX(5px);
+      opacity: 1;
+    }
+
+    .menu-link:hover .menu-icon {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .menu-link.active {
+      background-color: rgba(17, 24, 39, 0.8);
+      color: var(--primary);
+      font-weight: 500;
+      opacity: 1;
+    }
+
+    .menu-link.active .menu-icon {
+      color: var(--primary);
+    }
+
+    .menu-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+      opacity: 0.9;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(34, 197, 94, 0.3);
+      margin-top: auto;
+    }
+
+    .logout-link {
+      color: #ef4444;
+      opacity: 0.8;
+    }
+
+    .logout-link:hover {
+      color: #dc2626;
+      opacity: 1;
+    }
+
+    .logout-link .menu-icon {
+      color: #ef4444;
+    }
+
+    .logout-link:hover .menu-icon {
+      color: #dc2626;
+    }
+
+    /* Also ensure all links in the sidebar have no underline */
+    .sidebar a {
+      text-decoration: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 0;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-content.sidebar-open {
+      margin-left: var(--sidebar-width);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hero Section with Enhanced Effects */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        flex-direction: row;
+      }
+    }
+
+    .hero-content {
+      flex: 1;
+      position: relative;
+      animation: slideInLeft 0.8s ease-out;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #4ade80, #059669);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      position: relative;
+    }
+
+    .hero-title::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -8px;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #4ade80, transparent);
+    }
+
+    .hero-description {
+      color: #94a3b8;
+      font-size: 1.125rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-image-container {
+      width: 100%;
+      animation: slideInRight 0.8s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .hero-image-container {
+        width: 40%;
+      }
+    }
+
+    .hero-image-wrapper {
+      position: relative;
+      height: 500px;
+      width: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hero-image-wrapper:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 0 30px rgba(34, 197, 94, 0.2);
+    }
+
+    .hero-image-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, 
+        rgba(34, 197, 94, 0.15), 
+        rgba(59, 130, 246, 0.05));
+    }
+
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: overlay;
+      opacity: 0.8;
+      transition: opacity 0.3s ease, transform 2s ease;
+    }
+
+    .hero-image-wrapper:hover .hero-image {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    .hero-image-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      padding: 1.5rem;
+      transform: translateY(10px);
+      opacity: 0.9;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .hero-image-wrapper:hover .hero-image-caption {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .hero-image-caption h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .hero-image-caption p {
+      color: #d1d5db;
+    }
+
+    /* Stats Grid with Enhanced Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      border-radius: var(--radius);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      background-color: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.6s ease;
+      animation-fill-mode: both;
+    }
+
+    .stat-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .stat-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .stat-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .stat-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg,
+        transparent,
+        rgba(34, 197, 94, 0.03),
+        transparent,
+        transparent);
+      transform: rotate(45deg);
+      animation: shimmerEffect 6s infinite linear;
+    }
+
+    @keyframes shimmerEffect {
+      0% {
+        transform: translateX(-100%) rotate(45deg);
+      }
+      100% {
+        transform: translateX(100%) rotate(45deg);
+      }
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 0 20px rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .stat-icon {
+      width: 2rem;
+      height: 2rem;
+      filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.4));
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      position: relative;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .stat-title {
+      font-size: 1.125rem;
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(to right, #f8fafc, #cbd5e1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .stat-description {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    /* Goals Section with Enhanced Styling */
+    .goals-section {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      background-color: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      animation: fadeIn 0.6s 0.3s both;
+    }
+
+    .goals-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+      padding-bottom: 8px;
+    }
+
+    .goals-title::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 60%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+    }
+
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .goal-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      transition: transform 0.2s ease;
+    }
+
+    .goal-item:hover {
+      transform: translateX(5px);
+    }
+
+    .goal-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 9999px;
+      background: linear-gradient(to bottom right, #4ade80, #059669);
+      margin-top: 0.25rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .goal-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, 
+        rgba(255, 255, 255, 0.8), 
+        transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .goal-item:hover .goal-icon::after {
+      opacity: 0.4;
+    }
+
+    .goal-icon svg {
+      width: 0.75rem;
+      height: 0.75rem;
+      color: black;
+    }
+
+    .goal-text {
+      color: #d1d5db;
+      line-height: 1.5;
+      transition: color 0.2s ease;
+    }
+
+    .goal-item:hover .goal-text {
+      color: #f8fafc;
+    }
+
+    /* Footer with Enhanced Styling */
+    .footer {
+      margin-top: 3rem;
+      border-top: 1px solid rgba(34, 197, 94, 0.2);
+      padding-top: 2rem;
+      color: #94a3b8;
+      position: relative;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(to right,
+        rgba(34, 197, 94, 0),
+        rgba(34, 197, 94, 0.5),
+        rgba(34, 197, 94, 0));
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .footer-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      padding-left: 0.75rem;
+      position: relative;
+    }
+
+    .footer-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 1.2rem;
+      background: linear-gradient(to bottom, #22c55e, #059669);
+      border-radius: 4px;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .contact-email {
+      color: #4ade80;
+      position: relative;
+      display: inline-block;
+      transition: all 0.2s ease;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .contact-email:hover {
+      color: #34d399;
+      background-color: rgba(34, 197, 94, 0.1);
+      transform: translateX(3px);
+    }
+
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #94a3b8;
+      transition: all 0.2s ease;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+
+    .quick-link:hover {
+      color: #4ade80;
+      background-color: rgba(34, 197, 94, 0.1);
+      transform: translateX(3px);
+    }
+
+    .quick-link-icon {
+      width: 1rem;
+      height: 1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .quick-link:hover .quick-link-icon {
+      transform: scale(1.2);
+    }
+
+    .footer-copyright {
+      margin-top: 2rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+      padding: 1rem 0;
+      position: relative;
+    }
+
+    .footer-copyright::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 25%;
+      right: 25%;
+      height: 1px;
+      background: linear-gradient(to right, 
+        rgba(34, 197, 94, 0), 
+        rgba(34, 197, 94, 0.3), 
+        rgba(34, 197, 94, 0));
+    }
+
+    /* Menu Trigger */
+    .menu-trigger {
+      display: block;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1001;
+      background-color: rgba(15, 23, 42, 0.8);
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .menu-trigger.sidebar-open {
+      left: calc(var(--sidebar-width) + 1rem);
+    }
+
+    .menu-trigger:hover {
+      background-color: rgba(15, 23, 42, 1);
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+      transform: scale(1.05);
+    }
+
+    .menu-trigger svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--foreground);
+      transition: all 0.3s ease;
+    }
+
+    .menu-trigger:hover svg {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .menu-trigger .close-icon {
+      display: none;
+    }
+
+    .menu-trigger.sidebar-open .hamburger-icon {
+      display: none;
+    }
+
+    .menu-trigger.sidebar-open .close-icon {
+      display: block;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      display: none;
+    }
+
+    .overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
       .sidebar {
-        height: 100%;
-        width: 250px;
-        position: fixed;
-        top: 0;
         left: -250px;
-        background-color: #fff;
-        border-right: 2px solid #ddd;
-        transition: 0.3s;
-        padding-top: 60px;
-        z-index: 1000;
       }
-      .sidebar-open .navbar {
-        margin-left: 250px;
+
+      .sidebar.open {
+        left: 0;
       }
-      .sidebar a {
-        padding: 10px 15px;
-        text-decoration: none;
-        font-size: 18px;
-        color: #0d47a1;
-        display: block;
-        transition: 0.3s;
-      }
-      .sidebar a:hover {
-        background-color: #f1f1f1;
-      }
-      .open-btn {
-        font-size: 20px;
-        cursor: pointer;
-        margin: 10px;
-      }
-      .main {
-        transition: margin-left 0.3s;
-        padding: 20px;
+
+      .main-content {
         margin-left: 0;
       }
-      .close-sidebar-btn {
-        font-size: 20px;
-        cursor: pointer;
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        display: none;
+
+      .menu-trigger {
+        display: flex;
       }
-      .navbar a,
-      .navbar .dropdown-menu a {
-        color: white !important;
-        transition: color 0.3s ease;
+      
+      .hero-title {
+        font-size: 2rem;
       }
-      .navbar a:hover {
-        color: #dfffd6 !important;
-      }
-      main {
-        padding: 40px 20px;
-        text-align: center;
-      }
-      main h2 {
-        color: #0d47a1;
-        margin-bottom: 20px;
-        font-size: 28px;
-      }
-      main p,
-      main ul {
-        color: #0d47a1;
-        font-size: 18px;
-        line-height: 1.6;
-      }
-      .content-card {
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        margin: 20px auto;
-        max-width: 800px;
-        background-color: white;
-      }
-      .content-card:hover {
-        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-      }
-      footer {
-        color: white;
-        background-color: #2196f3;
-        text-align: center;
-        padding: 40px 20px;
-      }
-      footer h2 {
-        margin-bottom: 20px;
-      }
-      .logout-btn {
-        background-color: #2196f3;
-        color: black; /* Black text */
-        padding: 12px 20px;
-        text-decoration: none;
-        display: inline-block;
-        border-radius: 5px;
-        font-size: 18px;
-        font-weight: bold;
-        margin-top: 20px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-        font-family: Arial, sans-serif;
-      }
-      .logout-btn:hover {
-        background-color: #0d47a1;
-        transform: scale(1.05);
-      }
-      .logout-btn:active {
-        transform: scale(0.98);
-      }
-    </style>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg">
-      <div class="container-fluid">
-        <span class="open-btn" onclick="toggleSidebar()" style="color: white"
-          >&#9776; Menu</span
-        >
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="navbar-brand text-white" href="#">VIT EcoTRACK</a>
-            </li>
-          </ul>
+    }
+
+    /* Performance optimizations */
+    .will-change-transform {
+      will-change: transform;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+
+    /* Critical loading optimizations */
+    .js-loading * {
+      transition: none !important;
+      animation-duration: 0.001s !important;
+      animation-delay: 0s !important;
+      animation-iteration-count: 1 !important;
+    }
+  </style>
+</head>
+<body class="js-loading">
+  <!-- Floating Particles -->
+  <div class="floating-particles" id="particles"></div>
+
+  <!-- Mobile Menu Trigger -->
+  <button class="menu-trigger" id="menuTrigger">
+    <svg class="hamburger-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+            <path d="M12 22V15.5"></path>
+            <path d="M22 8.5L12 15.5L2 8.5"></path>
+            <path d="M2 15.5L12 8.5L22 15.5"></path>
+            <path d="M12 2V8.5"></path>
+          </svg>
+          <span class="logo-text">EcoTrack</span>
+        </a>
+      </div>
+      <div class="sidebar-content">
+        <nav class="sidebar-menu">
+          <div class="menu-item">
+            <a href="/index" class="menu-link active">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Home</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/initiatives" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                <path d="M12 22V15.5"></path>
+                <path d="M22 8.5L12 15.5L2 8.5"></path>
+                <path d="M2 15.5L12 8.5L22 15.5"></path>
+                <path d="M12 2V8.5"></path>
+              </svg>
+              <span>Initiatives</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/events" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Events</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/gallery" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span>Gallery</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/faq" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>FAQ</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/contact" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span>Contact</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/food-wastage" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2h-4v6h4V2z"></path>
+                <path d="M6 16a6 6 0 0 1 12 0v6H6v-6z"></path>
+              </svg>
+              <span>Parking Slot</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/food-donation" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+              </svg>
+              <span>Food Donation</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/ecoroute" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+              </svg>
+              <span>Eco-Route</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/blood-donation" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span>Blood Donation</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+      <div class="sidebar-footer">
+        <div class="menu-item">
+          <a href="/logout" class="menu-link logout-link">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </a>
         </div>
       </div>
-    </nav>
+    </aside>
 
-    <div class="sidebar" id="sidebar">
-      <h2 class="text-center">EcoTrack Menu</h2>
-      <span class="close-sidebar-btn" onclick="toggleSidebar()"
-        >&#10005; Close</span
-      >
-      <a href="/index">Home</a>
-      <a href="/initiatives">Initiatives</a>
-      <a href="/events">Events</a>
-      <a href="/gallery">Gallery</a>
-      <a href="/faq">FAQ</a>
-      <a href="/contact">Contact</a>
-      <a href="/food-wastage">Parking Slot</a>
-      <a href="/food-donation">Food Donation</a>
-      <a href="/ecoroute">Eco-Route</a>
-      <a href="/blood-donation">Blood Donation</a>
-      <a href="/logout" class="logout-btn">Logout</a>
-    </div>
-
-    <div class="main" id="main-content">
-      <main>
-        <div class="content-card">
-          <img
-            src="{{ url_for('static', filename='images/i05.jpg') }}"
-            alt="EcoTrack"
-            class="img-fluid"
-            style="border-radius: 10px; width: 700px; height: 500px"
-          />
-          <h2>Welcome to VIT EcoTrack</h2>
-          <p>
-            VIT EcoTrack is committed to fostering a sustainable future by
-            promoting eco-friendly practices and raising awareness within the
-            campus community. Our mission is to lead by example and inspire
-            everyone to embrace sustainability in their daily lives.
-          </p>
-          <h3>Our Goals</h3>
-          <ul>
-            <li>
-              Reduce carbon footprint through renewable energy initiatives.
-            </li>
-            <li>Promote waste management and recycling programs.</li>
-            <li>Encourage green spaces and biodiversity on campus.</li>
-            <li>
-              Educate the community about the importance of sustainability.
-            </li>
-          </ul>
-        </div>
-      </main>
-
-      <footer>
-        <section>
-          <h2>Contact Us</h2>
-          <address>
-            VIT EcoTrack Team<br />
-            Vellore Institute of Technology<br />
-            Email:
-            <a href="mailto:ecotrack@vit.ac.in" class="text-light"
-              >ecotrack@vit.ac.in</a
-            ><br />
-            Phone: +91-1234567890
-          </address>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+          <div class="hero-content">
+            <h1 class="hero-title">Welcome to VIT EcoTrack</h1>
+            <p class="hero-description">
+              Fostering a sustainable future by promoting eco-friendly practices and raising awareness within the campus community.
+            </p>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+              <div class="stat-card glass-card">
+                <div class="stat-card-header">
+                  <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                    <path d="M12 22V15.5"></path>
+                    <path d="M22 8.5L12 15.5L2 8.5"></path>
+                    <path d="M2 15.5L12 8.5L22 15.5"></path>
+                    <path d="M12 2V8.5"></path>
+                  </svg>
+                  <span class="stat-value">12+</span>
+                </div>
+                <h3 class="stat-title">Green Initiatives</h3>
+                <p class="stat-description">Active campus projects</p>
+              </div>
+              
+              <div class="stat-card glass-card">
+                <div class="stat-card-header">
+                  <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                  <span class="stat-value">24%</span>
+                </div>
+                <h3 class="stat-title">Waste Reduction</h3>
+                <p class="stat-description">Campus-wide improvement</p>
+              </div>
+              
+              <div class="stat-card glass-card">
+                <div class="stat-card-header">
+                  <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 14v6m-3-3h6M9.5 9C7.6 9.4 6 11 6 13c0 .8.3 1.5.7 2"></path>
+                    <path d="M13 9c2.2 0 4 1.8 4 4"></path>
+                    <path d="M14 7c3.9 0 7 3.1 7 7"></path>
+                    <path d="M5.6 17.2c-.4-.2-.7-.4-1-.7C2.9 14.9 2 12.1 2 9c0-1.7.3-3.4 1-5"></path>
+                    <path d="M9 17c-2.2 0-4-1.8-4-4 0-1.4.7-2.6 1.8-3.3"></path>
+                  </svg>
+                  <span class="stat-value">8</span>
+                </div>
+                <h3 class="stat-title">Green Spaces</h3>
+                <p class="stat-description">New areas developed</p>
+              </div>
+              
+              <div class="stat-card glass-card">
+                <div class="stat-card-header">
+                  <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
+                  <span class="stat-value">45</span>
+                </div>
+                <h3 class="stat-title">Awareness Programs</h3>
+                <p class="stat-description">Sessions conducted</p>
+              </div>
+            </div>
+            
+            <!-- Goals Section -->
+            <div class="goals-section">
+              <h2 class="goals-title">Our Goals</h2>
+              <ul class="goals-list">
+                <li class="goal-item">
+                  <div class="goal-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                    </svg>
+                  </div>
+                  <span class="goal-text">Reduce carbon footprint through renewable energy initiatives.</span>
+                </li>
+                <li class="goal-item">
+                  <div class="goal-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                    </svg>
+                  </div>
+                  <span class="goal-text">Promote waste management and recycling programs.</span>
+                </li>
+                <li class="goal-item">
+                  <div class="goal-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                    </svg>
+                  </div>
+                  <span class="goal-text">Encourage green spaces and biodiversity on campus.</span>
+                </li>
+                <li class="goal-item">
+                  <div class="goal-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                    </svg>
+                  </div>
+                  <span class="goal-text">Educate the community about the importance of sustainability.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="hero-image-container">
+            <div class="hero-image-wrapper">
+              <div class="hero-image-gradient"></div>
+              <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05" alt="EcoTrack" class="hero-image">
+              <div class="hero-image-caption">
+                <h3>VIT EcoTrack</h3>
+                <p>Leading the way to a sustainable campus</p>
+              </div>
+            </div>
+          </div>
         </section>
-        <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
-      </footer>
-    </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <h3 class="footer-title">Contact Us</h3>
+              <address class="contact-info">
+                <p>VIT EcoTrack Team</p>
+                <p>Vellore Institute of Technology</p>
+                <p>Email: <a href="mailto:ecotrack@vit.ac.in" class="contact-email">ecotrack@vit.ac.in</a></p>
+                <p>Phone: +91-1234567890</p>
+              </address>
+            </div>
+            <div>
+              <h3 class="footer-title">Quick Links</h3>
+              <div class="quick-links">
+                <a href="/index" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                  <span>Home</span>
+                </a>
+                <a href="/initiatives" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                  </svg>
+                  <span>Initiatives</span>
+                </a>
+                <a href="/events" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span>Events</span>
+                </a>
+                <a href="/gallery" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <span>Gallery</span>
+                </a>
+                <a href="/faq" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  <span>FAQ</span>
+                </a>
+                <a href="/contact" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <span>Contact</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
 
-    <script>
+  <script>
+    // Remove js-loading class to enable animations after page load
+    window.addEventListener('load', function() {
+      document.body.classList.remove('js-loading');
+      
+      // Create particles
+      createParticles();
+    });
+    
+    // Optimized JavaScript for better performance
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuTrigger = document.getElementById('menuTrigger');
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.querySelector('.main-content');
+      const overlay = document.createElement('div');
+      
+      overlay.className = 'overlay';
+      document.body.appendChild(overlay);
+      
       function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const mainContent = document.getElementById("main-content");
-
-        if (sidebar.style.left === "0px") {
-          sidebar.style.left = "-250px";
-          mainContent.style.marginLeft = "0";
-          document.body.classList.remove("sidebar-open");
-        } else {
-          sidebar.style.left = "0px";
-          mainContent.style.marginLeft = "250px";
-          document.body.classList.add("sidebar-open");
+        requestAnimationFrame(() => {
+          sidebar.classList.toggle('open');
+          mainContent.classList.toggle('sidebar-open');
+          menuTrigger.classList.toggle('sidebar-open');
+          overlay.classList.toggle('visible');
+        });
+      }
+      
+      // Event listeners
+      menuTrigger.addEventListener('click', toggleSidebar);
+      overlay.addEventListener('click', toggleSidebar);
+      
+      // Handle resize
+      function handleResize() {
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+          toggleSidebar();
         }
       }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+      
+      window.addEventListener('resize', handleResize);
+    });
+    
+    // Create floating particles
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 15;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const size = Math.random() * 6 + 3;
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        
+        // Set different animation duration and delay for each particle
+        particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Image fade-in effect - Lazy load images
+    document.addEventListener("DOMContentLoaded", function() {
+      const heroImage = document.querySelector('.hero-image');
+      if (heroImage.complete) {
+        heroImage.classList.add('loaded');
+      } else {
+        heroImage.addEventListener('load', function() {
+          this.classList.add('loaded');
+        });
+      }
+    });
+    
+    // Prefetch hover states
+    document.addEventListener('mouseover', function(e) {
+      if (e.target.classList.contains('menu-link') || e.target.classList.contains('stat-card')) {
+        // This triggers the hover state to be ready
+      }
+    }, { passive: true });
+  </script>
+</body>
 </html>

@@ -1,345 +1,1063 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Initiatives - VIT EcoTrack</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <style>
-      body {
-        background-color: #f5fce8;
-        font-family: "Arial", sans-serif;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-        color: #333;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIT EcoTrack - Initiatives</title>
+  <style>
+    /* Base Styles */
+    :root {
+      --background: #050a14;
+      --foreground: #f8fafc;
+      --card: #0f172a;
+      --card-foreground: #f8fafc;
+      --primary: #22c55e;
+      --primary-foreground: #052e16;
+      --secondary: #1e293b;
+      --secondary-foreground: #f8fafc;
+      --muted: #1e293b;
+      --muted-foreground: #94a3b8;
+      --accent: #1e293b;
+      --accent-foreground: #f8fafc;
+      --destructive: #7f1d1d;
+      --destructive-foreground: #f8fafc;
+      --border: #1e293b;
+      --input: #1e293b;
+      --ring: #22c55e;
+      --radius: 0.75rem;
+      
+      /* Sidebar */
+      --sidebar-background: #0a101f;
+      --sidebar-foreground: #f8fafc;
+      --sidebar-accent: #111827;
+      --sidebar-accent-foreground: #f8fafc;
+      --sidebar-border: #1e293b;
+      --sidebar-width: 250px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 128, 128, 0.08) 0%, transparent 50%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background Particles */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-particle {
+      position: absolute;
+      background: rgba(34, 197, 94, 0.1);
+      border-radius: 50%;
+      filter: blur(8px);
+      animation: float 15s infinite ease-in-out;
+    }
+
+    .bg-particle:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .bg-particle:nth-child(2) {
+      width: 250px;
+      height: 250px;
+      top: 60%;
+      left: 80%;
+      animation-delay: -5s;
+      background: rgba(0, 128, 128, 0.1);
+    }
+
+    .bg-particle:nth-child(3) {
+      width: 200px;
+      height: 200px;
+      top: 80%;
+      left: 30%;
+      animation-delay: -10s;
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) translateX(0);
       }
-      .navbar {
-        background-color: #2196f3;
-        transition: margin-left 0.3s;
-        padding: 10px 15px;
-        border-bottom: 2px solid #0d47a1;
+      25% {
+        transform: translateY(-20px) translateX(10px);
       }
-      .navbar .container-fluid {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      50% {
+        transform: translateY(0) translateX(20px);
       }
-      .navbar-brand {
-        flex-grow: 1;
-        text-align: right;
-        color: white;
-        font-size: 28px;
-        font-weight: bold;
+      75% {
+        transform: translateY(20px) translateX(10px);
       }
-      .sidebar {
-        height: 100%;
-        width: 250px;
-        position: fixed;
-        top: 0;
-        left: -250px;
-        background-color: #fff;
-        border-right: 2px solid #ddd;
-        transition: 0.3s;
-        padding-top: 60px;
-        z-index: 1000;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: rgba(10, 16, 31, 0.8);
+      backdrop-filter: blur(10px);
+      color: var(--sidebar-foreground);
+      height: 100vh;
+      position: fixed;
+      left: -250px;
+      top: 0;
+      z-index: 100;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-right: 1px solid rgba(34, 197, 94, 0.3);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .logo svg {
+      filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.5));
+      transition: transform 0.3s ease;
+    }
+
+    .logo:hover svg {
+      transform: rotate(15deg);
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: bold;
+      background: linear-gradient(to right, #4ade80, #059669);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(34, 197, 94, 0.3) transparent;
+    }
+
+    .sidebar-content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background-color: rgba(34, 197, 94, 0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .menu-item {
+      border-radius: var(--radius);
+      transition: all 0.2s;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-link:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .menu-link:hover:before {
+      left: 100%;
+    }
+
+    .menu-link:hover {
+      background-color: rgba(17, 24, 39, 0.8);
+      color: var(--primary);
+      transform: translateX(5px);
+    }
+
+    .menu-link.active {
+      background-color: rgba(17, 24, 39, 0.8);
+      color: var(--primary);
+      font-weight: 500;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    }
+
+    .menu-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-link:hover .menu-icon {
+      transform: scale(1.2);
+    }
+
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .logout-link {
+      color: #f87171;
+      transition: all 0.2s;
+    }
+
+    .logout-link:hover {
+      color: #ef4444;
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 0;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.sidebar-open {
+      margin-left: var(--sidebar-width);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
-      .sidebar-open .navbar {
-        margin-left: 250px;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-      .sidebar a {
-        padding: 10px 15px;
-        text-decoration: none;
-        font-size: 18px;
-        color: #0d47a1;
-        display: block;
-        transition: 0.3s;
+    }
+
+    /* Initiatives Section */
+    .initiatives-section {
+      margin-top: 1rem;
+      margin-bottom: 4rem;
+    }
+
+    .initiatives-title-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+
+    .initiatives-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #4ade80, #059669);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      position: relative;
+    }
+
+    .initiatives-title:after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 30%;
+      height: 3px;
+      background: linear-gradient(to right, #4ade80, #059669);
+      border-radius: 2px;
+    }
+
+    .initiatives-content {
+      background-color: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      padding: 2rem;
+      margin-bottom: 4rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .initiatives-content:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.2);
+    }
+
+    .initiative-item {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .initiative-item:hover {
+      transform: translateX(10px);
+    }
+
+    .initiative-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .initiative-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+
+    .initiative-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(to right, #4ade80, transparent);
+      border-radius: 2px;
+    }
+
+    .initiative-description {
+      color: var(--muted-foreground);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .initiative-item:hover .initiative-description {
+      color: var(--foreground);
+    }
+
+    .initiative-objectives {
+      margin-top: 1rem;
+      background-color: rgba(30, 41, 59, 0.3);
+      border-radius: var(--radius);
+      padding: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .initiative-objectives:hover {
+      transform: translateX(5px);
+    }
+
+    .objective-title {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      position: relative;
+      padding-bottom: 0.25rem;
+    }
+
+    .objective-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(to right, #4ade80, transparent);
+      border-radius: 2px;
+    }
+
+    .objective-list {
+      list-style-type: none;
+      padding-left: 1rem;
+    }
+
+    .objective-list li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--muted-foreground);
+      transition: all 0.3s ease;
+    }
+
+    .objective-list li:hover {
+      color: var(--foreground);
+      transform: translateX(5px);
+    }
+
+    .objective-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      transition: transform 0.3s ease;
+    }
+
+    .objective-list li:hover::before {
+      transform: scale(1.2);
+    }
+
+    /* Menu Trigger */
+    .menu-trigger {
+      display: block;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 101;
+      background-color: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .menu-trigger.sidebar-open {
+      left: calc(var(--sidebar-width) + 1rem);
+    }
+
+    .menu-trigger:hover {
+      background-color: rgba(15, 23, 42, 1);
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+      transform: scale(1.05);
+    }
+
+    .menu-trigger svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--foreground);
+      transition: transform 0.3s ease;
+    }
+
+    .menu-trigger:hover svg {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .menu-trigger .close-icon {
+      display: none;
+    }
+
+    .menu-trigger.sidebar-open .hamburger-icon {
+      display: none;
+    }
+
+    .menu-trigger.sidebar-open .close-icon {
+      display: block;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 99;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 4rem;
+      padding: 1.5rem;
+      color: #94a3b8;
+      position: relative;
+      background-color: rgba(10, 16, 31, 0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(34, 197, 94, 0.3), transparent);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
-      .sidebar a:hover {
-        background-color: #f1f1f1;
+    }
+
+    .footer-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      padding-left: 0.75rem;
+      position: relative;
+    }
+
+    .footer-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 1rem;
+      background: linear-gradient(to bottom, #22c55e, #16a34a);
+      border-radius: 3px;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-left: 0.75rem;
+      font-style: italic;
+      color: var(--muted-foreground);
+    }
+
+    .contact-info p {
+      margin: 0;
+      padding: 0;
+      transition: transform 0.2s;
+    }
+
+    .contact-info p:hover {
+      transform: translateX(5px);
+    }
+
+    .contact-email {
+      color: #4ade80;
+      text-decoration: none;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .contact-email:after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      transform: scaleX(0);
+      height: 1px;
+      bottom: 0;
+      left: 0;
+      background-color: #34d399;
+      transform-origin: bottom right;
+      transition: transform 0.2s ease-out;
+    }
+
+    .contact-email:hover {
+      color: #34d399;
+    }
+
+    .contact-email:hover:after {
+      transform: scaleX(1);
+      transform-origin: bottom left;
+    }
+
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      padding-left: 0.75rem;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted-foreground);
+      transition: all 0.2s;
+      padding: 0.25rem 0;
+    }
+
+    .quick-link:hover {
+      color: #4ade80;
+      transform: translateX(5px);
+    }
+
+    .quick-link-icon {
+      width: 1rem;
+      height: 1rem;
+      transition: transform 0.3s;
+    }
+
+    .quick-link:hover .quick-link-icon {
+      transform: rotate(15deg);
+    }
+
+    .footer-copyright {
+      margin-top: 2rem;
+      text-align: center;
+      color: var(--muted-foreground);
+      font-style: italic;
+    }
+
+    /* Shimmer effect for cards */
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
       }
-      .open-btn {
-        font-size: 20px;
-        cursor: pointer;
-        margin: 10px;
-        color: white;
+      100% {
+        background-position: 200% 0;
       }
-      .navbar a,
-      .navbar .dropdown-menu a {
-        color: white !important;
-        transition: color 0.3s ease;
+    }
+
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shimmer::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(34, 197, 94, 0.1), 
+        transparent
+      );
+      transform: rotate(30deg);
+      animation: shimmer 4s infinite linear;
+      pointer-events: none;
+    }
+
+    /* Performance optimization */
+    .will-change-transform {
+      will-change: transform;
+    }
+
+    .will-change-opacity {
+      will-change: opacity;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+
+    /* Responsive design improvements */
+    @media (max-width: 768px) {
+      .initiatives-title {
+        font-size: 2rem;
       }
-      .navbar a:hover {
-        color: #dfffd6 !important;
+      
+      .initiatives-content {
+        padding: 1.5rem;
       }
-      main {
-        padding: 40px 20px;
-        text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .initiatives-title {
+        font-size: 1.75rem;
       }
-      h2 {
-        color: #0d47a1;
-        margin-bottom: 40px;
-        font-size: 28px;
-        font-weight: bold;
-      }
-      .content-card {
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-        margin: 20px auto;
-        max-width: 800px;
-        background-color: white;
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-        border: 1px solid #ddd;
-      }
-      .content-card:hover {
-        box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
-        transform: translateY(-5px);
-      }
-      .content-card h3 {
-        color: #0d47a1;
-        margin-bottom: 20px;
-        font-size: 28px;
-        font-weight: bold;
-      }
-      .content-card p,
-      .content-card ul {
-        color: #0d47a1;
-        font-size: 18px;
-        line-height: 1.8;
-        margin-bottom: 20px;
-      }
-      .content-card ul {
-        list-style-type: none;
-        padding-left: 0;
-      }
-      .content-card ul li {
-        padding-left: 20px;
-        position: relative;
-      }
-      .content-card ul li::before {
-        content: "✔";
-        position: absolute;
-        left: 0;
-        color: #2196f3;
+      
+      .initiative-title {
+        font-size: 1.25rem;
       }
 
-      footer {
-        color: white;
-        background-color: #2196f3;
-        text-align: center;
-        padding: 40px 20px;
+      .objective-title {
+        font-size: 1.1rem;
       }
-      footer h2 {
-        color: white;
-        margin-bottom: 20px;
-        font-size: 28px;
-      }
-      .footer-links {
-        color: #fff;
-        text-decoration: none;
-      }
-      .footer-links:hover {
-        text-decoration: underline;
-      }
-      .close-sidebar-btn {
-        font-size: 20px;
-        cursor: pointer;
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        display: none;
-      }
-      main {
-        transition: margin-left 0.3s;
-        padding: 20px;
-        margin-left: 0;
-      }
-      .logout-btn {
-        background-color: #2196f3;
-        color: black;
-        padding: 12px 20px;
-        text-decoration: none;
-        display: inline-block;
-        border-radius: 5px;
-        font-size: 18px;
-        font-weight: bold;
-        margin-top: 20px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-        font-family: Arial, sans-serif;
-      }
-      .logout-btn:hover {
-        background-color: #0d47a1;
-        transform: scale(1.05);
-      }
-      .logout-btn:active {
-        transform: scale(0.98);
-      }
-    </style>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg">
-      <div class="container-fluid">
-        <span class="open-btn" onclick="toggleSidebar()">&#9776; Menu</span>
-        <a class="navbar-brand" href="#">VIT EcoTrack</a>
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Menu Trigger -->
+  <button class="menu-trigger" id="menuTrigger">
+    <svg class="hamburger-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+            <path d="M12 22V15.5"></path>
+            <path d="M22 8.5L12 15.5L2 8.5"></path>
+            <path d="M2 15.5L12 8.5L22 15.5"></path>
+            <path d="M12 2V8.5"></path>
+          </svg>
+          <span class="logo-text">EcoTrack</span>
+        </a>
       </div>
-    </nav>
-
-    <div class="sidebar" id="sidebar">
-      <h2 class="text-center" style="color: black">EcoTrack Menu</h2>
-      <span class="close-sidebar-btn" onclick="toggleSidebar()"
-        >&#10005; Close</span
-      >
-      <a href="/index">Home</a>
-      <a href="/about">About</a>
-      <a href="/events">Events</a>
-      <a href="/gallery">Gallery</a>
-      <a href="/faq">FAQ</a>
-      <a href="/contact">Contact</a>
-      <a href="/food-wastage">Parking Slot</a>
-      <a href="/food-donation">Food Donation</a>
-      <a href="/ecoroute">Eco-Route</a>
-      <a href="/blood-donation">Blood Donation</a>
-      <a href="/logout" class="logout-btn">Logout</a>
-    </div>
-
-    <main id="main-content">
-      <div class="content-card">
-        <h2>Our Sustainability Initiatives</h2>
-        <div id="treeplanting">
-          <h3>
-            Green Campus Program: Transforming Our Campus into a Sustainable
-            Haven
-          </h3>
-          <p>
-            The Green Campus Program aims to create an eco-friendly environment
-            by increasing green cover, promoting biodiversity, and instilling
-            environmental responsibility among students and staff.
-          </p>
-          <h4>Key Objectives</h4>
-          <ul>
-            <li>
-              <strong>Tree Plantation:</strong> Increase greenery by planting
-              and maintaining trees.
-            </li>
-            <li>
-              <strong>Biodiversity Conservation:</strong> Create habitats for
-              local flora and fauna.
-            </li>
-            <li>
-              <strong>Sustainable Gardening:</strong> Encourage organic
-              gardening and native plants.
-            </li>
-            <li>
-              <strong>Waste Management:</strong> Implement segregation,
-              composting, and recycling.
-            </li>
-            <li>
-              <strong>Water Conservation:</strong> Utilize rainwater harvesting
-              and efficient irrigation.
-            </li>
-            <li>
-              <strong>Renewable Energy:</strong> Promote solar energy and
-              energy-efficient lighting.
-            </li>
-            <li>
-              <strong>Eco-Friendly Transport:</strong> Encourage cycling,
-              walking, and carpooling.
-            </li>
-          </ul>
-          <h4>Implementation Strategies</h4>
-          <ul>
-            <li>
-              <strong>Tree Plantation Drives:</strong> Organize mass tree
-              planting events and maintain green spaces.
-            </li>
-            <li>
-              <strong>Botanical Gardens:</strong> Develop green zones for
-              biodiversity and environmental awareness.
-            </li>
-            <li>
-              <strong>Sustainable Waste Management:</strong> Promote composting,
-              recycling, and e-waste collection.
-            </li>
-            <li>
-              <strong>Water Conservation Measures:</strong> Implement rainwater
-              harvesting and drip irrigation systems.
-            </li>
-            <li>
-              <strong>Renewable Energy Initiatives:</strong> Install solar
-              panels and promote LED lighting.
-            </li>
-            <li>
-              <strong>Community Engagement:</strong> Conduct workshops, green
-              club activities, and sustainability challenges.
-            </li>
-          </ul>
-          <h4>Conclusion</h4>
-          <p>
-            The Green Campus Program fosters a sustainable campus environment
-            through eco-friendly initiatives and active participation. With
-            collective effort, we can make our campus a model of environmental
-            responsibility.
-          </p>
+      <div class="sidebar-content">
+        <nav class="sidebar-menu">
+          <div class="menu-item">
+            <a href="/index" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Home</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/about" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>About</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/initiatives" class="menu-link active">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                <path d="M12 22V15.5"></path>
+                <path d="M22 8.5L12 15.5L2 8.5"></path>
+                <path d="M2 15.5L12 8.5L22 15.5"></path>
+                <path d="M12 2V8.5"></path>
+              </svg>
+              <span>Initiatives</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/events" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Events</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/gallery" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span>Gallery</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/faq" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>FAQ</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/contact" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span>Contact</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/food-wastage" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2h-4v6h4V2z"></path>
+                <path d="M6 16a6 6 0 0 1 12 0v6H6v-6z"></path>
+              </svg>
+              <span>Parking Slot</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/food-donation" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+              </svg>
+              <span>Food Donation</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/ecoroute" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+              </svg>
+              <span>Eco-Route</span>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="/blood-donation" class="menu-link">
+              <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span>Blood Donation</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+      <div class="sidebar-footer">
+        <div class="menu-item">
+          <a href="/logout" class="menu-link logout-link">
+            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </a>
         </div>
       </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <section class="initiatives-section">
+          <h1 class="initiatives-title">Our Sustainability Initiatives</h1>
+          <div class="initiatives-content">
+            <div class="initiative-item">
+              <h3 class="initiative-title">Green Campus Program: Transforming Our Campus into a Sustainable Haven</h3>
+              <p class="initiative-description">
+                The Green Campus Program aims to create an eco-friendly environment by increasing green cover, promoting biodiversity, and instilling environmental responsibility among students and staff.
+              </p>
+              
+              <div class="initiative-objectives">
+                <h4 class="objective-title">Key Objectives</h4>
+                <ul class="objective-list">
+                  <li>Tree Plantation: Increase greenery by planting and maintaining trees.</li>
+                  <li>Biodiversity Conservation: Create habitats for local flora and fauna.</li>
+                  <li>Sustainable Gardening: Encourage organic gardening and native plants.</li>
+                  <li>Waste Management: Implement segregation, composting, and recycling.</li>
+                  <li>Water Conservation: Utilize rainwater harvesting and efficient irrigation.</li>
+                  <li>Renewable Energy: Promote solar energy and energy-efficient lighting.</li>
+                  <li>Eco-Friendly Transport: Encourage cycling, walking, and carpooling.</li>
+                </ul>
+              </div>
+
+              <div class="initiative-objectives">
+                <h4 class="objective-title">Implementation Strategies</h4>
+                <ul class="objective-list">
+                  <li>Tree Plantation Drives: Organize mass tree planting events and maintain green spaces.</li>
+                  <li>Botanical Gardens: Develop green zones for biodiversity and environmental awareness.</li>
+                  <li>Sustainable Waste Management: Promote composting, recycling, and e-waste collection.</li>
+                  <li>Water Conservation Measures: Implement rainwater harvesting and drip irrigation systems.</li>
+                  <li>Renewable Energy Initiatives: Install solar panels and promote LED lighting.</li>
+                  <li>Community Engagement: Conduct workshops, green club activities, and sustainability challenges.</li>
+                </ul>
+              </div>
+
+              <div class="initiative-objectives">
+                <h4 class="objective-title">Conclusion</h4>
+                <p class="initiative-description">
+                  The Green Campus Program fosters a sustainable campus environment through eco-friendly initiatives and active participation. With collective effort, we can make our campus a model of environmental responsibility.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <h3 class="footer-title">Contact Us</h3>
+              <address class="contact-info">
+                <p>VIT EcoTrack Team</p>
+                <p>Vellore Institute of Technology</p>
+                <p>Email: <a href="mailto:ecotrack@vit.ac.in" class="contact-email">ecotrack@vit.ac.in</a></p>
+                <p>Phone: +91-1234567890</p>
+              </address>
+            </div>
+            <div>
+              <h3 class="footer-title">Quick Links</h3>
+              <div class="quick-links">
+                <a href="/index" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                  <span>Home</span>
+                </a>
+                <a href="/initiatives" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                  </svg>
+                  <span>Initiatives</span>
+                </a>
+                <a href="/events" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span>Events</span>
+                </a>
+                <a href="/gallery" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <span>Gallery</span>
+                </a>
+                <a href="/faq" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  <span>FAQ</span>
+                </a>
+                <a href="/contact" class="quick-link">
+                  <svg class="quick-link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <span>Contact</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+          </div>
+        </footer>
+      </div>
     </main>
+  </div>
 
-    <footer>
-      <section>
-        <h2>Contact Us</h2>
-        <address>
-          VIT EcoTrack Team<br />
-          Vellore Institute of Technology<br />
-          Email:
-          <a href="mailto:ecotrack@vit.ac.in" class="footer-links"
-            >ecotrack@vit.ac.in</a
-          ><br />
-          Phone: +91-1234567890
-        </address>
-      </section>
-      <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
-    </footer>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.querySelector(".main-content");
+      const menuTrigger = document.getElementById("menuTrigger");
 
-    <script>
-      function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const mainContent = document.getElementById("main-content");
-
-        if (sidebar.style.left === "0px") {
-          sidebar.style.left = "-250px";
-          mainContent.style.marginLeft = "0";
-          document.body.classList.remove("sidebar-open");
-        } else {
-          sidebar.style.left = "0px";
-          mainContent.style.marginLeft = "250px";
-          document.body.classList.add("sidebar-open");
-        }
+      if (sidebar.classList.contains("open")) {
+        sidebar.classList.remove("open");
+        mainContent.classList.remove("sidebar-open");
+        menuTrigger.classList.remove("sidebar-open");
+      } else {
+        sidebar.classList.add("open");
+        mainContent.classList.add("sidebar-open");
+        menuTrigger.classList.add("sidebar-open");
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        gsap.from(".navbar", {
-          duration: 1,
-          y: -50,
-          opacity: 0,
-          ease: "bounce",
-        });
-        gsap.from(".content-card", {
-          duration: 1,
-          opacity: 0,
-          y: 20,
-          delay: 0.5,
-        });
-        gsap.from("footer", { duration: 1, y: 50, opacity: 0, delay: 1 });
-      });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+    }
+
+    // Add event listener to the menu trigger button
+    document.getElementById("menuTrigger").addEventListener("click", toggleSidebar);
+  </script>
+</body>
 </html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Stress Level Predictor</title>
+    <style>
+        :root {
+            --background: #050a14;
+            --foreground: #f8fafc;
+            --card: #0f172a;
+            --primary: #22c55e;
+            --secondary: #1e293b;
+            --muted: #94a3b8;
+            --radius: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 85%, rgba(0, 128, 128, 0.08) 0%, transparent 50%);
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(15, 23, 42, 0.7);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            backdrop-filter: blur(12px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: var(--radius);
+            color: var(--foreground);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+
+        .radio-options, .rating-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .radio-option, .rating-option {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .radio-option input[type="radio"], 
+        .rating-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option label, 
+        .rating-option label {
+            display: block;
+            padding: 0.75rem;
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--foreground);
+        }
+
+        .radio-option input[type="radio"]:checked + label,
+        .rating-option input[type="radio"]:checked + label {
+            background-color: var(--primary);
+            color: var(--background);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .radio-option label:hover,
+        .rating-option label:hover {
+            background-color: rgba(34, 197, 94, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .slider-container {
+            padding: 1rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .slider-value {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, #22c55e, #059669);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--radius);
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .low-stress {
+            background: linear-gradient(135deg, #22c55e, #059669);
+            color: white;
+        }
+
+        .medium-stress {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .high-stress {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .radio-option, .rating-option {
+                min-width: calc(50% - 0.5rem);
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        select {
+            background-color: rgba(30, 41, 59, 0.7);
+            color: var(--foreground);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            width: 100%;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+
+        option {
+            background-color: var(--background);
+            color: var(--foreground);
+            padding: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Student Stress Level Classifier</h1>
+    <div class="form-container">
+        <form id="stressForm">
+            <div class="form-group">
+                <label for="anxiety_level">How much would you rate your Anxiety Level On a Scale of 0-30:</label>
+                <div class="slider-container">
+                    <input type="range" id="anxiety_level" min="0" max="25" value="12" class="slider" required>
+                    <div class="slider-value" id="anxiety_level_value">10</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="self_esteem">How much would you rate your Self Esteem On a Scale of 0-30:</label>
+                <div class="slider-container">
+                    <input type="range" id="self_esteem" min="0" max="30" value="15" class="slider" required>
+                    <div class="slider-value" id="self_esteem_value">15</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="mental_health_history">Mental Health History:</label>
+                <div class="radio-options">
+                    <div class="radio-option">
+                        <input type="radio" id="mh_no" name="mental_health_history" value="0" required checked>
+                        <label for="mh_no">No history</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="mh_yes" name="mental_health_history" value="1">
+                        <label for="mh_yes">Has history</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="depression">How much would you rate your Overall Mental Health Level On a Scale of 0-30:</label>
+                <div class="slider-container">
+                    <input type="range" id="depression" min="0" max="30" value="15" class="slider" required>
+                    <div class="slider-value" id="depression_value">13</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="headache">Headache Frequency:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="headache_0" name="headache" value="0" required>
+                        <label for="headache_0">Never</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="headache_1" name="headache" value="1">
+                        <label for="headache_1">Rarely</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="headache_2" name="headache" value="2">
+                        <label for="headache_2">Sometimes</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="headache_3" name="headache" value="3">
+                        <label for="headache_3">Often</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="headache_4" name="headache" value="4">
+                        <label for="headache_4">Very Often</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="headache_5" name="headache" value="5">
+                        <label for="headache_5">Always</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="blood_pressure">Blood Pressure:</label>
+                <select id="blood_pressure" required>
+                    <option value="1">Low</option>
+                    <option value="2">Normal</option>
+                    <option value="3">High</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="sleep_quality">Sleep Quality:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="sleep_0" name="sleep_quality" value="0" required>
+                        <label for="sleep_0">Very Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="sleep_1" name="sleep_quality" value="1">
+                        <label for="sleep_1">Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="sleep_2" name="sleep_quality" value="2">
+                        <label for="sleep_2">Fair</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="sleep_3" name="sleep_quality" value="3">
+                        <label for="sleep_3">Good</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="sleep_4" name="sleep_quality" value="4">
+                        <label for="sleep_4">Very Good</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="sleep_5" name="sleep_quality" value="5">
+                        <label for="sleep_5">Excellent</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="breathing_problem">Breathing Problems:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="breathing_0" name="breathing_problem" value="0" required>
+                        <label for="breathing_0">None</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="breathing_1" name="breathing_problem" value="1">
+                        <label for="breathing_1">Mild</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="breathing_2" name="breathing_problem" value="2">
+                        <label for="breathing_2">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="breathing_3" name="breathing_problem" value="3">
+                        <label for="breathing_3">Severe</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="noise_level">Noise Level:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="noise_0" name="noise_level" value="0" required>
+                        <label for="noise_0">None</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="noise_1" name="noise_level" value="1">
+                        <label for="noise_1">Very Low</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="noise_2" name="noise_level" value="2">
+                        <label for="noise_2">Low</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="noise_3" name="noise_level" value="3">
+                        <label for="noise_3">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="noise_4" name="noise_level" value="4">
+                        <label for="noise_4">High</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="noise_5" name="noise_level" value="5">
+                        <label for="noise_5">Very High</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="living_conditions">Living Conditions:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="living_1" name="living_conditions" value="1" required>
+                        <label for="living_1">Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="living_2" name="living_conditions" value="2">
+                        <label for="living_2">Fair</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="living_3" name="living_conditions" value="3">
+                        <label for="living_3">Good</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="living_4" name="living_conditions" value="4">
+                        <label for="living_4">Very Good</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="living_5" name="living_conditions" value="5">
+                        <label for="living_5">Excellent</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="safety">Safety:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="safety_0" name="safety" value="0" required>
+                        <label for="safety_0">Very Unsafe</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="safety_1" name="safety" value="1">
+                        <label for="safety_1">Unsafe</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="safety_2" name="safety" value="2">
+                        <label for="safety_2">Somewhat Safe</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="safety_3" name="safety" value="3">
+                        <label for="safety_3">Safe</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="safety_4" name="safety" value="4">
+                        <label for="safety_4">Very Safe</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="safety_5" name="safety" value="5">
+                        <label for="safety_5">Extremely Safe</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="basic_needs">Basic Needs Met:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="needs_1" name="basic_needs" value="1" required>
+                        <label for="needs_1">Not Met</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="needs_2" name="basic_needs" value="2">
+                        <label for="needs_2">Partially Met</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="needs_3" name="basic_needs" value="3">
+                        <label for="needs_3">Mostly Met</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="needs_4" name="basic_needs" value="4">
+                        <label for="needs_4">Fully Met</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="needs_5" name="basic_needs" value="5">
+                        <label for="needs_5">Exceeded</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="academic_performance">Academic Performance:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="academic_0" name="academic_performance" value="0" required>
+                        <label for="academic_0">Very Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="academic_1" name="academic_performance" value="1">
+                        <label for="academic_1">Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="academic_2" name="academic_performance" value="2">
+                        <label for="academic_2">Below Average</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="academic_3" name="academic_performance" value="3">
+                        <label for="academic_3">Average</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="academic_4" name="academic_performance" value="4">
+                        <label for="academic_4">Good</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="academic_5" name="academic_performance" value="5">
+                        <label for="academic_5">Excellent</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="study_load">Study Load:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="load_1" name="study_load" value="1" required>
+                        <label for="load_1">Very Light</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="load_2" name="study_load" value="2">
+                        <label for="load_2">Light</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="load_3" name="study_load" value="3">
+                        <label for="load_3">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="load_4" name="study_load" value="4">
+                        <label for="load_4">Heavy</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="load_5" name="study_load" value="5">
+                        <label for="load_5">Very Heavy</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="teacher_student_relationship">Teacher-Student Relationship:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="teacher_0" name="teacher_student_relationship" value="0" required>
+                        <label for="teacher_0">Very Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="teacher_1" name="teacher_student_relationship" value="1">
+                        <label for="teacher_1">Poor</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="teacher_2" name="teacher_student_relationship" value="2">
+                        <label for="teacher_2">Below Average</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="teacher_3" name="teacher_student_relationship" value="3">
+                        <label for="teacher_3">Average</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="teacher_4" name="teacher_student_relationship" value="4">
+                        <label for="teacher_4">Good</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="teacher_5" name="teacher_student_relationship" value="5">
+                        <label for="teacher_5">Excellent</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="future_career_concerns">Future Career Concerns:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="career_1" name="future_career_concerns" value="1" required>
+                        <label for="career_1">None</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="career_2" name="future_career_concerns" value="2">
+                        <label for="career_2">Mild</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="career_3" name="future_career_concerns" value="3">
+                        <label for="career_3">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="career_4" name="future_career_concerns" value="4">
+                        <label for="career_4">Significant</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="career_5" name="future_career_concerns" value="5">
+                        <label for="career_5">Severe</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="social_support">Social Support:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="support_0" name="social_support" value="0" required>
+                        <label for="support_0">None</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="support_1" name="social_support" value="1">
+                        <label for="support_1">Very Little</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="support_2" name="social_support" value="2">
+                        <label for="support_2">Some</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="support_3" name="social_support" value="3">
+                        <label for="support_3">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="support_4" name="social_support" value="4">
+                        <label for="support_4">Strong</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="support_5" name="social_support" value="5">
+                        <label for="support_5">Very Strong</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="peer_pressure">Peer Pressure:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="peer_1" name="peer_pressure" value="1" required>
+                        <label for="peer_1">None</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="peer_2" name="peer_pressure" value="2">
+                        <label for="peer_2">Mild</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="peer_3" name="peer_pressure" value="3">
+                        <label for="peer_3">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="peer_4" name="peer_pressure" value="4">
+                        <label for="peer_4">Significant</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="peer_5" name="peer_pressure" value="5">
+                        <label for="peer_5">Severe</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="extracurricular_activities">Extracurricular Activities:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="activity_0" name="extracurricular_activities" value="0" required>
+                        <label for="activity_0">None</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="activity_1" name="extracurricular_activities" value="1">
+                        <label for="activity_1">Very Little</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="activity_2" name="extracurricular_activities" value="2">
+                        <label for="activity_2">Some</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="activity_3" name="extracurricular_activities" value="3">
+                        <label for="activity_3">Moderate</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="activity_4" name="extracurricular_activities" value="4">
+                        <label for="activity_4">Frequent</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="activity_5" name="extracurricular_activities" value="5">
+                        <label for="activity_5">Very Frequent</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bullying">Bullying:</label>
+                <div class="rating-options">
+                    <div class="rating-option">
+                        <input type="radio" id="bully_0" name="bullying" value="0" required>
+                        <label for="bully_0">Never</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="bully_1" name="bullying" value="1">
+                        <label for="bully_1">Rarely</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="bully_2" name="bullying" value="2">
+                        <label for="bully_2">Sometimes</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="bully_3" name="bullying" value="3">
+                        <label for="bully_3">Often</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="bully_4" name="bullying" value="4">
+                        <label for="bully_4">Very Often</label>
+                    </div>
+                    <div class="rating-option">
+                        <input type="radio" id="bully_5" name="bullying" value="5">
+                        <label for="bully_5">Always</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" onclick="predictStress()">Predict Stress Level</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // Update slider values in real-time
+        document.querySelectorAll('.slider').forEach(slider => {
+            const valueDisplay = document.getElementById(`${slider.id}_value`);
+            valueDisplay.textContent = slider.value; // Set initial value
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = slider.value;
+                valueDisplay.style.color = '#3498db';
+                valueDisplay.style.fontWeight = 'bold';
+                setTimeout(() => {
+                    valueDisplay.style.color = '';
+                }, 300);
+            });
+        });
+
+        function getRadioValue(name) {
+            const selected = document.querySelector(`input[name="${name}"]:checked`);
+            return selected ? selected.value : null;
+        }
+
+        function validateForm() {
+            // Check all radio groups have a selection
+            const radioGroups = [
+                'headache', 'breathing_problem', 'living_conditions',
+                'basic_needs', 'study_load', 'future_career_concerns',
+                'peer_pressure', 'bullying'
+            ];
+            
+            for (const group of radioGroups) {
+                if (!getRadioValue(group)) {
+                    alert(`Please select an option for ${group.replace('_', ' ')}`);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function predictStress() {
+            if (!validateForm()) return;
+
+            // Get all input values
+            const inputs = {
+                anxiety_level: document.getElementById('anxiety_level').value,
+                self_esteem: document.getElementById('self_esteem').value,
+                mental_health_history: getRadioValue('mental_health_history'),
+                depression: document.getElementById('depression').value,
+                headache: getRadioValue('headache'),
+                blood_pressure: document.getElementById('blood_pressure').value,
+                sleep_quality: getRadioValue('sleep_quality'),
+                breathing_problem: getRadioValue('breathing_problem'),
+                noise_level: getRadioValue('noise_level'),
+                living_conditions: getRadioValue('living_conditions'),
+                safety: getRadioValue('safety'),
+                basic_needs: getRadioValue('basic_needs'),
+                academic_performance: getRadioValue('academic_performance'),
+                study_load: getRadioValue('study_load'),
+                teacher_student_relationship: getRadioValue('teacher_student_relationship'),
+                future_career_concerns: getRadioValue('future_career_concerns'),
+                social_support: getRadioValue('social_support'),
+                peer_pressure: getRadioValue('peer_pressure'),
+                extracurricular_activities: getRadioValue('extracurricular_activities'),
+                bullying: getRadioValue('bullying')
+            };
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+
+            // Show loading state
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Processing...';
+            resultDiv.style.display = 'block';
+
+            // Send to Flask backend - use full URL when not running from Flask
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(inputs)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const prediction = data.prediction;
+                    const suggestion=data.suggestion;
+                    if (prediction === 0) {
+                        resultDiv.className = 'result low-stress';
+                    } else if (prediction === 1) {
+                        resultDiv.className = 'result medium-stress';
+                    } else {
+                        resultDiv.className = 'result high-stress';
+                    }
+                    resultDiv.textContent = data.message+". " + suggestion;
+                } else {
+                    resultDiv.className = 'result';
+                    resultDiv.textContent = 'Error: ' + data.message;
+                }
+            })
+            .catch(error => {
+                resultDiv.className = 'result';
+                resultDiv.textContent = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>

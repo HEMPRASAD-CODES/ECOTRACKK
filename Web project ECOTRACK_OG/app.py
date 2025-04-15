@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+import joblib
 from twilio.rest import Client
 from datetime import datetime
 from flask_mail import Mail, Message
@@ -15,66 +16,137 @@ from google_auth_oauthlib.flow import Flow
 import os
 import requests
 import json
+from flask_cors import CORS
+from flask_session import Session
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+import time
+import logging
+import csv
+from flask_cors import CORS
+import pandas as pd
+import folium
+from geopy.distance import geodesic
+from polyline import decode
+from scipy.interpolate import interp1d
+
+
+import numpy as np
+from math import radians, cos, sin, sqrt,atan2
+CSV_FILE = "C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/blood_banks.csv"
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = 'achp-2005-'  # Ensure this is secure
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
+
 
 GOOGLE_CLIENT_ID = '57739675915-v6b026qitqtqfpb6uipb96u72id72bub.apps.googleusercontent.com'
 GOOGLE_CLIENT_SECRET = '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'
 SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read']
 REDIRECT_URI = 'http://localhost:5000/oauth2callback'
+
+# Initialize Flask-Mail
+mail = Mail(app)
+
+# Load credentials from a JSON file
+with open('C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/creds.json') as f:
+    credentials = json.load(f)
+
+client_id = credentials['web']['client_id']
+client_secret = credentials['web']['client_secret']
+redirect_uris = credentials['web']['redirect_uris']
+
+flow = Flow.from_client_config(
+    {
+        "web": {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "redirect_uris": "http://localhost:5000/oauth2callback"
+        }
+    },
+    scopes=SCOPES,
+    redirect_uri=redirect_uris[0]
+)
+
 @app.route('/authorize')
 def authorize():
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": GOOGLE_CLIENT_ID,
-                "client_secret": GOOGLE_CLIENT_SECRET,
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [REDIRECT_URI]
-            }
-        },
-        scopes=SCOPES,
-        redirect_uri=REDIRECT_URI
-    )
     authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    access_type='offline',
+    include_granted_scopes='true'
     session['state'] = state
-    return redirect(authorization_url)
+    # This URL will take the user to Google's sign-in page
+    return jsonify({'authUrl': authorization_url})
+# Add this to your Flask backend
+@app.route('/get-connected-account')
+def get_connected_account():
+    if 'credentials' in session:
+        credentials = Credentials(**session['credentials'])
+        try:
+            # Build the OAuth2 service
+            oauth2_service = build('oauth2', 'v2', credentials=credentials)
+            # Get user info
+            user_info = oauth2_service.userinfo().get().execute()
+            return jsonify({'email': user_info['email']})
+        except Exception as e:
+            logging.error(f"Error getting user info: {e}")
+            return jsonify({'error': 'Failed to get user info'}), 500
+    return jsonify({'error': 'Not authenticated'}), 401
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    state = session['state']
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": GOOGLE_CLIENT_ID,
-                "client_secret": GOOGLE_CLIENT_SECRET,
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [REDIRECT_URI]
-            }
-        },
-        scopes=SCOPES,
-        state=state,
-        redirect_uri=REDIRECT_URI
-    )
     flow.fetch_token(authorization_response=request.url)
-
     credentials = flow.credentials
-    session['credentials'] = {
-        'token': credentials.token,
-        'refresh_token': credentials.refresh_token,
-        'token_uri': credentials.token_uri,
-        'client_id': credentials.client_id,
-        'client_secret': credentials.client_secret,
-        'scopes': credentials.scopes
-    }
+    
+    # Build the OAuth2 service
+    oauth2_service = build('oauth2', 'v2', credentials=credentials)
+    user_info = oauth2_service.userinfo().get().execute()
+    
+    # Check if email domain is allowed
+    email = user_info['email']
+    allowed_domain = "your-organization.com"  # Replace with your domain
+    
+    if not email.endswith(f"@{allowed_domain}"):
+        return "Sorry, only emails from {} are allowed.".format(allowed_domain)
+    
+    session['credentials'] = credentials_to_dict(credentials)
+    return redirect('/steps')
 
-    return redirect('/get_steps')
+def haversine2(lat1, lon1, lat2, lon2):
+    R = 6371  # Earth radius in KM
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
+    return R * 2 * atan2(sqrt(a), sqrt(1 - a))
 
-
-
-
+def load_blood_banks():
+    blood_banks = []
+    with open(CSV_FILE, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for i, row in enumerate(reader):
+            try:
+                bank_lat = float(row.get(" Latitude", 0))
+                bank_lon = float(row.get(" Longitude", 0))
+                if bank_lat and bank_lon:
+                    blood_banks.append({
+                        "name": row.get(" Blood Bank Name", "N/A").strip(),
+                        "address": row.get(" Address", "N/A").strip(),
+                        "contact_no": row.get(" Contact No", row.get(" Mobile", "N/A")).strip(),
+                        "latitude": bank_lat,
+                        "longitude": bank_lon
+                    })
+            except Exception as e:
+                print(f"Error loading row {i+1}: {e}")
+                continue
+    return blood_banks
 def fetch_steps_data(credentials):
     # Example API call to fetch steps data
     headers = {
@@ -86,21 +158,113 @@ def fetch_steps_data(credentials):
         return response.json()  # Return the steps data
     else:
         return None  # Handle errors appropriately
-    
-def get_steps_data():
-    if 'credentials' not in session:
-        return None
 
-    credentials = session['credentials']
-    headers = {
-        'Authorization': f'Bearer {credentials.token}',
-        'Content-Type': 'application/json',
-    }
-    response = requests.get('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', headers=headers)
-    if response.status_code == 200:
-        return response.json()  # Return the steps data
-    else:
-        return None  # Handle errors appropriately
+@app.route("/choose_model", methods=["GET", "POST"])
+def choose_model():
+    response = ""
+    if request.method == "POST":
+        model = request.form["model"]
+        prompt = request.form["prompt"]
+        if model == "sdg":
+            response = sdg_assistant.ask_sdg(prompt)
+        elif model == "mental":
+            response = mental_support.ask_mental(prompt)
+    return render_template("choose_model.html", response=response)
+@app.route('/fetch-data')
+def fetch_data():
+    if 'credentials' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    credentials = Credentials(**session['credentials'])
+    fitness_service = build('fitness', 'v1', credentials=credentials)
+
+    # Define the time range for the data
+    seven_days_in_millis = 14 * 24 * 60 * 60 * 1000
+    start_time_millis = int(time.time() * 1000) - seven_days_in_millis
+    end_time_millis = int(time.time() * 1000)
+
+    try:
+        # Make the API request
+        request_body = {
+            "aggregateBy": [
+                {"dataTypeName": "com.google.step_count.delta"},
+                {"dataTypeName": "com.google.blood_glucose"},
+                {"dataTypeName": "com.google.blood_pressure"},
+                {"dataTypeName": "com.google.heart_rate.bpm"},
+                {"dataTypeName": "com.google.weight"},
+                {"dataTypeName": "com.google.height"},
+                {"dataTypeName": "com.google.sleep.segment"},
+                {"dataTypeName": "com.google.body.fat.percentage"},
+                {"dataTypeName": "com.google.menstruation"},
+            ],
+            "bucketByTime": {"durationMillis": 86400000},
+            "startTimeMillis": start_time_millis,
+            "endTimeMillis": end_time_millis,
+        }
+
+        response = fitness_service.users().dataset().aggregate(
+            userId='me', body=request_body).execute()
+
+        logging.debug(f"API Response: {response}")
+
+        # Process the response
+        formatted_data = process_fitness_data(response)
+        logging.debug(f"Formatted Data: {formatted_data}")
+
+        return jsonify(formatted_data)
+
+    except Exception as e:
+        logging.error(f"Error fetching data: {e}")
+        return jsonify({"error": "Failed to fetch data from Google Fitness API"}), 500
+
+def process_fitness_data(response):
+    # Process the response data and format it as needed
+    formatted_data = []
+    for bucket in response.get('bucket', []):
+        # Process each bucket of data
+        formatted_entry = {
+            'date': bucket.get('startTimeMillis'),
+            'step_count': 0,
+            'glucose_level': 0,
+            'blood_pressure': [],
+            'heart_rate': 0,
+            'weight': 0,
+            'height_in_cms': 0,
+            'sleep_hours': 0,
+            'body_fat_in_percent': 0,
+            'menstrual_cycle_start': '',
+        }
+
+        # Add logic to extract and format data from each dataset
+        for dataset in bucket.get('dataset', []):
+            for point in dataset.get('point', []):
+                # Example of extracting step count
+                if dataset.get('dataSourceId') == "derived:com.google.step_count.delta:com.google.android.gms:aggregated":
+                    formatted_entry['step_count'] = point.get('value', [{}])[0].get('intVal', 0)
+                    logging.debug(f"Step Count: {formatted_entry['step_count']}")
+
+                # Add similar logic for other data types
+                # Example for heart rate
+                if dataset.get('dataSourceId') == "derived:com.google.heart_rate.bpm:com.google.android.gms:aggregated":
+                    formatted_entry['heart_rate'] = point.get('value', [{}])[0].get('fpVal', 0)
+                    logging.debug(f"Heart Rate: {formatted_entry['heart_rate']}")
+
+                # Continue for other data types...
+
+        formatted_data.append(formatted_entry)
+        logging.debug(f"Formatted Entry: {formatted_entry}")  # Print the entire entry for debugging
+
+    return formatted_data
+@app.route('/rewards', methods=['GET','POST'])
+def rewards():
+    return render_template("rewards.html")
+def credentials_to_dict(credentials):
+    return {'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes}
 
 app = Flask(__name__)
 # Database Configuration
@@ -137,6 +301,7 @@ class FoodDonation(db.Model):
     pickup_time = db.Column(db.DateTime, nullable=False)
     pickup_place = db.Column(db.String(200), nullable=False)
     status = db.Column(db.String(20), default='Scheduled')
+
 class ParkingLot(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -162,6 +327,7 @@ class Booking(db.Model):
     end_time = db.Column(db.Time, nullable=False)
     status = db.Column(db.String(20), default='Active')  # 'Active' or 'Completed'
     otp = db.Column(db.Integer)
+
 @app.route('/api/parking_lots', methods=['GET'])
 def get_parking_lots():
     lots = ParkingLot.query.all()
@@ -186,6 +352,7 @@ def get_parking_slots(lot_id):
         response.append({'id': car_slot.id, 'slot_type': car_slot.slot_type, 'status': car_slot.status})
 
     return jsonify(response)
+
 @app.route('/api/book_slot', methods=['POST'])
 @login_required
 def book_slot():
@@ -212,6 +379,7 @@ def book_slot():
 
         return jsonify({'message': 'Slot booked successfully!', 'otp': otp}), 201
     return jsonify({'message': 'Slot is not available.'}), 400
+
 def generate_unique_otp():
     while True:
         otp = str(random.randint(100000, 999999))  # Generate a 6-digit OTP
@@ -246,6 +414,7 @@ def verify_otp():
 
     # If no matching OTP was found
     return jsonify({'message': 'Invalid OTP. No active booking found with this OTP.'}), 400
+
 @app.route('/api/release_slot', methods=['POST'])
 @login_required
 def release_slot():
@@ -293,6 +462,7 @@ def auto_release_slots():
 
             db.session.commit()  # Commit all changes to the database
             time.sleep(60)  # Check every minute
+
 REWARDS = {
     100: "Congratulations! You've earned a 10% Discount on your next purchase at Vmart!"
     "Contact us through this website for the coupon code ",
@@ -419,17 +589,79 @@ def login():
 @app.route('/about', methods=['GET', 'POST'])
 def about():
     return render_template('about.html')
+@app.route('/steps', methods=['GET', 'POST'])
+def steps():
+    return render_template('steps.html')
+@app.route('/mental-burnout', methods=['GET', 'POST'])
+def stress():
+    return render_template('stress-predictor.html')
+
 @app.route('/admin/parking', methods=['GET', 'POST'])
 def parking():
     return render_template('parking.html')
+
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    return render_template('index.html', username=current_user.username, points=current_user.points, badge=current_user.badge)
+    steps_data = fetch_data()
+    return render_template('index.html', username=current_user.username, points=current_user.points, badge=current_user.badge, steps=steps_data)
 
 @app.route('/initiatives')
 def initiatives():
     return render_template('initiatives.html')
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # Get data from form
+        data = request.get_json()
+        
+        # Convert to correct types
+        input_data = {
+            'anxiety_level': int(data['anxiety_level']),
+            'self_esteem': int(data['self_esteem']),
+            'mental_health_history': int(data['mental_health_history']),
+            'depression': int(data['depression']),
+            'headache': int(data['headache']),
+            'blood_pressure': int(data['blood_pressure']),
+            'sleep_quality': int(data['sleep_quality']),
+            'breathing_problem': int(data['breathing_problem']),
+            'noise_level': int(data['noise_level']),
+            'living_conditions': int(data['living_conditions']),
+            'safety': int(data['safety']),
+            'basic_needs': int(data['basic_needs']),
+            'academic_performance': int(data['academic_performance']),
+            'study_load': int(data['study_load']),
+            'teacher_student_relationship': int(data['teacher_student_relationship']),
+            'future_career_concerns': int(data['future_career_concerns']),
+            'social_support': int(data['social_support']),
+            'peer_pressure': int(data['peer_pressure']),
+            'extracurricular_activities': int(data['extracurricular_activities']),
+            'bullying': int(data['bullying'])
+        }
+        
+        # Make prediction
+        prediction,suggestion = predict_stress_level(input_data)
+
+        # If prediction is a tuple like (prediction_class, probability), unpack it
+        if isinstance(prediction, tuple):
+            prediction_value = prediction[0]
+        else:
+            prediction_value = prediction
+
+        stress_levels = ["Low", "Medium", "High"]
+
+        return jsonify({
+            'status': 'success',
+            'prediction': str(prediction_value),
+            'message': f'Predicted Stress Level: {stress_levels[prediction_value]} ({prediction_value})',
+            'suggestion':f'{suggestion}'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        })
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -462,6 +694,9 @@ def gallery():
 @app.route('/outmap', methods=['GET', 'POST'])
 def outmap():
     return render_template('route_map.html')
+@app.route('/leaderboard', methods=['GET', 'POST'])
+def leaderboard():
+    return render_template('leaderboard.html')
 
 @app.route('/ecoroute', methods=['GET', 'POST'])
 def ecoroute():
@@ -562,7 +797,30 @@ def register_donor():
             db.session.commit()
             return jsonify({'message': message}), 200
     else:
-        return jsonify({'message': 'No Immediate Requests Found. If found, SMS will be sent to notify you.'}), 200
+          return jsonify({'message': message}), 404
+
+@app.route('/bloodbanks', methods=['GET','POST'])
+def bloodbanks():
+    user_lat = request.args.get("lat", type=float, default=19.0760)  # fallback to Mumbai
+    user_lon = request.args.get("lon", type=float, default=72.8777)
+
+    print(f"User location: lat={user_lat}, lon={user_lon}")
+
+    blood_banks = load_blood_banks()
+    print(f"Loaded {len(blood_banks)} blood bank records from CSV")
+
+    nearby_blood_banks = []
+    for i, bank in enumerate(blood_banks):
+        distance = haversine2(user_lat, user_lon, bank["latitude"], bank["longitude"])
+        if distance <= 50:  # filter by distance in km
+            bank["distance"] = round(distance, 2)
+            nearby_blood_banks.append(bank)
+
+    nearby_blood_banks.sort(key=lambda x: x["distance"])
+
+    print(f"Nearby blood banks found: {len(nearby_blood_banks)}")
+
+    return render_template("bloodbanks.html", blood_banks=nearby_blood_banks, user_location={"lat": user_lat, "lon": user_lon})
 
 # API to Request Blood
 @app.route('/api/request_blood', methods=['POST'])
@@ -602,6 +860,84 @@ def send_sms(to, message):
         to=to
     )
 
+def load_model():
+    """Load the saved model and scaler"""
+    model = joblib.load('C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/stress_model.pkl')
+    scaler = joblib.load('C:/Users/hempr/Downloads/Web project ECOTRACK_OG_styled/Web project ECOTRACK_OG/scaler.pkl')
+    return model, scaler
+
+import pandas as pd
+import google.generativeai as genai  # Ensure Gemini SDK is installed
+
+def predict_stress_level(input_data):
+    """
+    Predict stress level from input data and return a summary message
+    
+    Args:
+        input_data: Dictionary or DataFrame containing the input features
+        
+    Returns:
+        Tuple: (stress_level: int, summary_message: str)
+    """
+    model, scaler = load_model()
+    
+    # Feature order must match training data
+    feature_order = [
+        'anxiety_level',
+        'self_esteem',
+        'mental_health_history',
+        'depression',
+        'headache',
+        'blood_pressure',
+        'sleep_quality',
+        'breathing_problem',
+        'noise_level',
+        'living_conditions',
+        'safety',
+        'basic_needs',
+        'academic_performance',
+        'study_load',
+        'teacher_student_relationship',
+        'future_career_concerns',
+        'social_support',
+        'peer_pressure',
+        'extracurricular_activities',
+        'bullying'
+    ]
+    
+    # Format the input as DataFrame
+    if isinstance(input_data, dict):
+        input_df = pd.DataFrame([input_data], columns=feature_order)
+    else:
+        input_df = input_data[feature_order].copy()
+    
+    # Predict stress level
+    scaled_input = scaler.transform(input_df)
+    stress_level = model.predict(scaled_input)[0]
+    
+    # Build prompt for Gemini
+    prompt = f"""
+You are a helpful assistant for mental wellness.
+
+Given the following user data:
+{input_data}
+
+The predicted stress level is: {stress_level} (0 = Low, 1 = Moderate, 2 = High)
+
+Write a short personalized suggestion or mental health tip for the user to help them cope better based on their data.
+"""
+    
+    # Generate suggestion from Gemini
+    try:
+        genai.configure(api_key="AIzaSyB3AQ_r-Q0NqyXj64DXoX5mQzyQL0D3WDs")  # Replace with your actual API key
+        chat_model = genai.GenerativeModel("gemini-2.0-flash")
+        response = chat_model.generate_content(prompt)
+        suggestion = response.text.strip()
+    except Exception as e:
+        suggestion = "We're sorry, but we couldn't generate a suggestion at this time."
+
+    return stress_level, suggestion
+
 def notify_orphanage(food_donation):
     orphanage = db.session.get(Orphanage, food_donation.orphanage_id)
 
@@ -611,6 +947,7 @@ def notify_orphanage(food_donation):
         from_=TWILIO_PHONE_NUMBER,
         to=orphanage.contact_number
     )
+
 from flask_login import logout_user
 
 @app.route('/logout')
@@ -619,6 +956,7 @@ def logout():
     logout_user()  # Log the user out
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))  # Redirect to the login page
+
 class ContactFormSubmission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -650,10 +988,12 @@ def save_contact():
     except Exception as e:
         db.session.rollback()  # Rollback the session in case of error
         return jsonify({'status': 'error', 'message': str(e)}), 500
-# API Keys
-TOMTOM_API_KEY = "GGAOmaFE3JdavZQ8NbKbjAYqP8X6dHlX"
-WEATHERBIT_API_KEY = "1122f550d34f4b33a862db4ea40d3e66"
 
+# API Keys
+TOMTOM_API_KEY = "UsMEnScMCrNvkFm5AQQV44NyV03n0zsG"
+WEATHERBIT_API_KEY = "8d3143f5bfb641cca365e5dc3b891902"
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 # Function to get coordinates using geopy
 def get_coordinates(city_name):
     geolocator = Nominatim(user_agent="city_route_locator")
@@ -664,7 +1004,7 @@ def get_coordinates(city_name):
     else:
         print(f"City '{city_name}' not found.")
         return None
-
+ 
 # Function to predict CO2 emissions
 def predict_co2_emissions(num_gears, transmission_type, engine_size, fuel_type, cylinders, fuel_consumption_comb):
     loaded_model = joblib.load('C:/Users/hempr/Downloads/fedex-main (5)/fedex-main (4)/fedex-main/fedex-main/model_final.pkl')
@@ -731,149 +1071,6 @@ def get_weather_data_cached(coords):
     weather_data = get_weather_data(coords)
     weather_cache[coords] = weather_data
     return weather_data
-from math import e
-import webbrowser
-import json
-import requests
-import folium
-from geopy.geocoders import Nominatim
-from geopy.extra.rate_limiter import RateLimiter
-from polyline import decode
-import numpy as np
-import pandas as pd
-from scipy.interpolate import interp1d
-from geopy.distance import geodesic
-import joblib
-
-
-# Replace with your API keys
-TOMTOM_API_KEY = "GGAOmaFE3JdavZQ8NbKbjAYqP8X6dHlX"
-WEATHERBIT_API_KEY = "1122f550d34f4b33a862db4ea40d3e66"
-
-# Function to get coordinates using geopy
-def get_coordinates(city_name):
-    geolocator = Nominatim(user_agent="city_route_locator")
-    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
-    location = geocode(city_name)
-    if location:
-        return location.latitude, location.longitude
-    else:
-        print(f"City '{city_name}' not found.")
-        return None
-
-# Function to get weather forecast for coordinates using Weatherbit API
-import time
-
-
-def predict_co2_emissions(num_gears, transmission_type, engine_size, fuel_type, cylinders, fuel_consumption_comb):
-
-    loaded_model = joblib.load('C:/Users/hempr/Downloads/fedex-main (5)/fedex-main (4)/fedex-main/fedex-main/model_final.pkl')
-
-
-    transmission_type_mapping = {'A': 0, 'AM': 1, 'AS': 2, 'AV': 3, 'M': 4}
-    fuel_type_mapping = {'D': 0, 'E': 1, 'N': 2, 'X': 3, 'Z': 4}
-
-    # Get encoded values from user input
-    transmission_type_encoded = transmission_type_mapping.get(transmission_type)
-    fuel_type_encoded = fuel_type_mapping.get(fuel_type)
-    # Create input array for the model
-    input_data = [[num_gears, transmission_type_encoded, engine_size, fuel_type_encoded, cylinders, fuel_consumption_comb]]
-    input_data = pd.DataFrame(input_data, columns=['Number of Gears', 'Transmission Type', 'Engine Size', 'Fuel Type', 'Cylinders', 'Fuel Consumption Comb'])
-
-    # Make prediction
-    prediction = loaded_model.predict(input_data)
-
-    # Print prediction
-    print("Predicted CO2 Emissions:", prediction[0])
-    return prediction[0]
-
-
-# Modified version of get_weather_data with rate-limiting
-def get_weather_data(coords, retries=5, delay=1):
-    weather_url = "https://api.weatherbit.io/v2.0/forecast/daily"
-    params = {
-        "lat": coords[0],
-        "lon": coords[1],
-        "key": WEATHERBIT_API_KEY,
-        "days": 1  # Fetch the next 1 day of forecast
-    }
-
-    for attempt in range(retries):
-        try:
-            response = requests.get(weather_url, params=params)
-            response.raise_for_status()  # Raise exception for 4xx or 5xx responses
-
-            data = response.json()
-            if "data" in data:
-                weather_info = []
-                for forecast in data["data"]:
-                    timestamp = forecast["datetime"]
-                    temperature = forecast["temp"]
-                    rain = forecast.get("precip", 0)  # Precipitation in mm
-                    rain_percentage = (rain / 10) * 100  # Approximation for rain percentage
-                    weather_info.append({
-                        "timestamp": timestamp,
-                        "temperature": temperature,
-                        "rain_percentage": rain_percentage  # Convert rain to percentage
-                    })
-                return weather_info
-            else:
-                print("No weather data found.")
-                return None
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 429:  # Too many requests
-                print(f"Rate limited. Retrying in {delay} seconds...")
-                time.sleep(delay)
-                delay *= 2  # Exponentially increase delay
-            else:
-                print(f"Error fetching weather data: {e}")
-                return None
-
-    print("Exceeded retry attempts.")
-    return None
-
-"""def get_weather_data(coords):
-    weather_url = "https://api.weatherbit.io/v2.0/forecast/daily"
-    params = {
-        "lat": coords[0],
-        "lon": coords[1],
-        "key": WEATHERBIT_API_KEY,
-        "days": 1  # Fetch the next 2 days of forecast
-    }
-    try:
-        response = requests.get(weather_url, params=params)
-        response.raise_for_status()  # Raise exception for 4xx or 5xx responses
-        data = response.json()
-        if "data" in data:
-            weather_info = []
-            for forecast in data["data"]:
-                timestamp = forecast["datetime"]
-                temperature = forecast["temp"]
-                rain = forecast.get("precip", 0)  # Precipitation in mm
-                rain_percentage = (rain / 10) * 100  # Approximation for rain percentage
-                weather_info.append({
-                    "timestamp": timestamp,
-                    "temperature": temperature,
-                    "rain_percentage": rain_percentage  # Convert rain to percentage
-                })
-            return weather_info
-        else:
-            print("No weather data found.")
-            return None
-    except Exception as e:
-        print(f"Error fetching weather data: {e}")
-        return None"""
-
-weather_cache = {}
-
-def get_weather_data_cached(coords):
-    if coords in weather_cache:
-        return weather_cache[coords]
-
-    weather_data = get_weather_data(coords)  # Original API call
-    weather_cache[coords] = weather_data
-    return weather_data
-
 
 # Function to calculate rain delay based on probability
 def calculate_rain_delay(rain_probability, base_delay=8):
@@ -900,7 +1097,6 @@ def calculate_rain_delay(rain_probability, base_delay=8):
             return base_delay
     return 0  # No delay if rain probability <= 0.5
 
-
 # Function to calculate route using OSRM
 def get_osrm_route(start_coords, end_coords):
     osrm_url = f"http://router.project-osrm.org/route/v1/driving/{start_coords[1]},{start_coords[0]};{end_coords[1]},{end_coords[0]}?overview=full&alternatives=true"
@@ -923,6 +1119,7 @@ def get_osrm_route(start_coords, end_coords):
     except Exception as e:
         print(f"Error fetching route from OSRM: {e}")
         return []
+
 def get_osrm_walking_route(start_coords, end_coords):
     osrm_url = f"https://routing.openstreetmap.de/routed-foot/route/v1/foot/{start_coords[1]},{start_coords[0]};{end_coords[1]},{end_coords[0]}?overview=full&alternatives=true&continue_straight=false&annotations=true&steps=true"
     try:
@@ -944,6 +1141,7 @@ def get_osrm_walking_route(start_coords, end_coords):
     except Exception as e:
         print(f"Error fetching walking route from OSRM: {e}")
         return []
+
 def get_osrm_bike_route(start_coords, end_coords):
     osrm_url = f"https://routing.openstreetmap.de/routed-bike/route/v1/bike/{start_coords[1]},{start_coords[0]};{end_coords[1]},{end_coords[0]}?overview=full&alternatives=true&continue_straight=false&annotations=true&steps=true"
     try:
@@ -965,6 +1163,7 @@ def get_osrm_bike_route(start_coords, end_coords):
     except Exception as e:
         print(f"Error fetching walking route from OSRM: {e}")
         return []
+
 # Function to fetch traffic flow data from TomTom
 def get_traffic_color(coords):
     traffic_url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
@@ -1019,8 +1218,8 @@ def get_vehicle_type():
         vehicle_type = input("Enter vehicle type: ").lower()
 
     return vehicle_type
-# Function to display the route with traffic data on a map
 
+# Function to display the route with traffic data on a map
 def display_route_with_traffic(route_map, routes, traffic_colors, air_segments, location_airport_segments, vehicle_emission,tf,weather_info=None):
     # Add road segments
     total_co2_emission11 = 0.0
@@ -1349,7 +1548,7 @@ def plan_route():
         
 
         # Call the main function with the provided parameters
-        route_map = main(start_city, end_city, stop_loc, vehicle_input, stops, cargo_weight, 
+        route_map = main(start_city, end_city, stop_loc, vehicle_input, cargo_weight, 
                           num_gears_start, transmission_type_start, 
                           engine_size_start, fuel_type_start, 
                           cylinders_start, fuel_consumption_start, 
@@ -1373,7 +1572,7 @@ def route_page():
     return render_template("idummy.html")
 
 # Main function
-def main(start_city, end_city, stop_loc, vehicle_input,stops_data, cargo_weight, num_gears, transmission_type, engine_size, fuel_type, cylinders, fuel_consumption_comb, air_travel_start):
+def main(start_city, end_city, stop_loc, vehicle_input,cargo_weight, num_gears, transmission_type, engine_size,fuel_type_start, cylinders, fuel_consumption_comb, air_travel_start):
     # Input start, destination, and optional stops
     html_content="""<html>
     <head><title>Outputs</title></head>
@@ -1381,7 +1580,7 @@ def main(start_city, end_city, stop_loc, vehicle_input,stops_data, cargo_weight,
     <h1>Output for routes:</h1>"""
     stops = stop_loc.split(",")
     vehicle_type_road = vehicle_input
-    co2_for_vehicle = predict_co2_emissions(num_gears, transmission_type, engine_size, fuel_type, cylinders, fuel_consumption_comb)
+    co2_for_vehicle = predict_co2_emissions(num_gears, transmission_type, engine_size, fuel_type_start, cylinders, fuel_consumption_comb)
 
 
     stops = [stop.strip() for stop in stops if stop.strip()]
@@ -1404,7 +1603,7 @@ def main(start_city, end_city, stop_loc, vehicle_input,stops_data, cargo_weight,
 
         # Initialize map
         route_map = folium.Map(location=start_coords, zoom_start=7)
-        
+        stops_data=""
         # Iterate through each segment in the route
         N=1
         U=1
@@ -1463,18 +1662,6 @@ def main(start_city, end_city, stop_loc, vehicle_input,stops_data, cargo_weight,
                     N += 1
                     print("Incremented N to", N)
                 for idx, (decoded_geometry, _, _) in enumerate(all_routes):
-
-                    """print(n)
-                    if n>1:
-                      drop_off = input("Enter drop off at segment 1")
-                      idropoff = int(drop_off)
-                      icargo_weight -= idropoff
-                      vehicle_type_road = get_vehicle_type(icargo_weight)
-                      n+=1
-                    if n==1:
-                      n+=1"""
-                    road_time=0.0
-
 
                   
 
