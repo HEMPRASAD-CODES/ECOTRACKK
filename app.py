@@ -295,7 +295,7 @@ class Orphanage(db.Model):
 
 class FoodDonation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('UserData.id'), nullable=False)
     orphanage_id = db.Column(db.Integer, db.ForeignKey('orphanage.id'), nullable=False)
     food_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.Float, nullable=False)
@@ -321,7 +321,7 @@ class ParkingSlot(db.Model):
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable =False)
+    user_id = db.Column(db.Integer, db.ForeignKey('UserData.id'), nullable =False)
     slot_id = db.Column(db.Integer, db.ForeignKey('parking_slot.id'), nullable=False)
     booking_date = db.Column(db.Date, nullable=False)  # New field for booking date
     start_time = db.Column(db.Time, nullable=False)
