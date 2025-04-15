@@ -277,6 +277,7 @@ login_manager.login_view = 'login'
 # Models
 class UserData(db.Model, UserMixin):
     __tablename__ = 'UserData' 
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -287,12 +288,14 @@ class UserData(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
 
 class Orphanage(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(200), nullable=False)
     contact_number = db.Column(db.String(15), nullable=False)
 
 class FoodDonation(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('UserData.id'), nullable=False)
     orphanage_id = db.Column(db.Integer, db.ForeignKey('orphanage.id'), nullable=False)
@@ -303,6 +306,7 @@ class FoodDonation(db.Model):
     status = db.Column(db.String(20), default='Scheduled')
 
 class ParkingLot(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     total_bike_slots = db.Column(db.Integer, default=500)
@@ -310,6 +314,7 @@ class ParkingLot(db.Model):
     slots = db.relationship('ParkingSlot', backref='parking_lot', lazy=True)
 
 class ParkingSlot(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     lot_id = db.Column(db.Integer, db.ForeignKey('parking_lot.id'), nullable=False)
     slot_type = db.Column(db.String(10), nullable=False)  # 'Bike' or 'Car'
@@ -319,6 +324,7 @@ class ParkingSlot(db.Model):
     expiry_time = db.Column(db.Time, nullable=True)
 
 class Booking(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('UserData.id'), nullable =False)
     slot_id = db.Column(db.Integer, db.ForeignKey('parking_slot.id'), nullable=False)
