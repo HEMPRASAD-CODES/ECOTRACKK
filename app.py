@@ -563,7 +563,7 @@ def register():
 
         users = UserData(username=username, email=email, password=password, phone_number=phone_number)
         try:
-            db.session.add(new_user)
+            db.session.add(users)
             db.session.commit()
             flash('Registration Successful! Please log in.', 'success')
             return redirect(url_for('login'))
