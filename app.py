@@ -276,7 +276,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 # Models
-class User(db.Model, UserMixin):
+class user(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -560,8 +560,8 @@ def register():
         password = request.form['password']
         phone_number = request.form['phone_number']
 
-        user = User(username=username, email=email, password=password, phone_number=phone_number)
-        db.session.add(user)
+        users = user(username=username, email=email, password=password, phone_number=phone_number)
+        db.session.add(users)
         db.session.commit()
 
         flash('Registration Successful! Please log in.', 'success')
@@ -575,14 +575,14 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        user = user.query.filter_by(email=email).first()
+        users = user.query.filter_by(email=email).first()
 
-        if not user:
+        if not users:
             flash('Error: No account found with this email.', 'danger')
-        elif user.password != password:
+        elif users.password != password:
             flash('Error: Incorrect password. Please try again.', 'danger')
         else:
-            login_user(user)
+            login_user(users)
             flash('Login successful!', 'success')
             return redirect(url_for('index'))
 
