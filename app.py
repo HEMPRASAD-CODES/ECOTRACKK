@@ -39,6 +39,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = 'achp-2005-'  # Ensure this is secure
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -264,7 +265,7 @@ def credentials_to_dict(credentials):
             'client_secret': credentials.client_secret,
             'scopes': credentials.scopes}
 
-app = Flask(__name__)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql12773326:KGWALbzQpP@sql12.freesqldatabase.com:3306/sql12773326'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -517,7 +518,7 @@ def admin_dashboard():
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('index'))
 
-    users = User.query.all()  # Get all users
+    users = UserData.query.all()  # Get all users
     return render_template('admin_dashboard.html', users=users)
 
 import getpass
@@ -1901,8 +1902,6 @@ def serve_route_map(filename):
 
 if __name__ == '__main__':
     with app.app_context():
-
-        db.drop_all()  # Drops all tables
         db.create_all()  # Creates all tables
     threading.Thread(target=auto_release_slots, daemon=True).start()
 
