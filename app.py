@@ -277,6 +277,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 # Models
 class UserData(db.Model, UserMixin):
+    __tablename__ = 'UserData' 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -561,9 +562,6 @@ def register():
         phone_number = request.form['phone_number']
 
         users = UserData(username=username, email=email, password=password, phone_number=phone_number)
-        db.session.add(users)
-        db.session.commit()
-
         try:
             db.session.add(new_user)
             db.session.commit()
