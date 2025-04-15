@@ -268,13 +268,12 @@ def credentials_to_dict(credentials):
 
 app = Flask(__name__)
 # Database Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Achp-2005-@localhost/sustainability_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hem:x8crvF2ISnhvqZ3BiZ0cEioHQYZNQ1O2@dpg-cvv1l8re5dus73e5eui0-a.virginia-postgres.render.com/ecotrack_db_38o1'
 app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
 # Models
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -320,13 +319,39 @@ class ParkingSlot(db.Model):
 
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable =False)
     slot_id = db.Column(db.Integer, db.ForeignKey('parking_slot.id'), nullable=False)
     booking_date = db.Column(db.Date, nullable=False)  # New field for booking date
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
     status = db.Column(db.String(20), default='Active')  # 'Active' or 'Completed'
     otp = db.Column(db.Integer)
+
+class BloodDonor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    blood_type = db.Column(db.String(5), nullable=False)  # e.g., A+, O-, etc.
+    phone_number = db.Column(db.String(15), nullable=False)
+    location = db.Column(db.String(200), nullable=False)
+    is_available = db.Column(db.Boolean, default=True)
+
+class BloodRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    blood_type = db.Column(db.String(5), nullable=False)
+    urgency = db.Column(db.String(20), nullable=False)  # e.g., Critical, Normal
+    location = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(20), default='Pending')  # Pending, Matched, Completed
+
+class ContactFormSubmission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    subject = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime)
+
+
 
 @app.route('/api/parking_lots', methods=['GET'])
 def get_parking_lots():
