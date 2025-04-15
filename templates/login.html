@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VIT EcoTRACK - Login</title>
+    <style>
+      /* Base Styles */
+      :root {
+        --background: #050a14;
+        --foreground: #f8fafc;
+        --card: #0f172a;
+        --card-foreground: #f8fafc;
+        --primary: #22c55e;
+        --primary-foreground: #052e16;
+        --secondary: #1e293b;
+        --secondary-foreground: #f8fafc;
+        --muted: #1e293b;
+        --muted-foreground: #94a3b8;
+        --accent: #1e293b;
+        --accent-foreground: #f8fafc;
+        --destructive: #7f1d1d;
+        --destructive-foreground: #f8fafc;
+        --border: #1e293b;
+        --input: #1e293b;
+        --ring: #22c55e;
+        --radius: 0.75rem;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            rgba(34, 197, 94, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(0, 128, 128, 0.08) 0%,
+            transparent 50%
+          );
+        background-attachment: fixed;
+        overflow-x: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Animated Background Particles */
+      .bg-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .bg-particle {
+        position: absolute;
+        background: rgba(34, 197, 94, 0.1);
+        border-radius: 50%;
+        filter: blur(8px);
+        animation: float 15s infinite ease-in-out;
+      }
+
+      .bg-particle:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .bg-particle:nth-child(2) {
+        width: 250px;
+        height: 250px;
+        top: 60%;
+        left: 80%;
+        animation-delay: -5s;
+        background: rgba(0, 128, 128, 0.1);
+      }
+
+      .bg-particle:nth-child(3) {
+        width: 200px;
+        height: 200px;
+        top: 80%;
+        left: 30%;
+        animation-delay: -10s;
+        background: rgba(34, 197, 94, 0.08);
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0) translateX(0);
+        }
+        25% {
+          transform: translateY(-20px) translateX(10px);
+        }
+        50% {
+          transform: translateY(0) translateX(20px);
+        }
+        75% {
+          transform: translateY(20px) translateX(10px);
+        }
+      }
+
+      .login-container {
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(to right, #4ade80, #059669);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+      }
+
+      .login-title:after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 35%;
+        width: 30%;
+        height: 3px;
+        background: linear-gradient(to right, #4ade80, #059669);
+        border-radius: 2px;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.875rem;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+        transition: color 0.2s;
+        text-align: left;
+      }
+
+      .form-group:focus-within .form-label {
+        color: var(--primary);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: rgba(30, 41, 59, 0.7);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--foreground);
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+      }
+
+      .form-submit {
+        background: linear-gradient(45deg, #22c55e, #16a34a);
+        color: var(--primary-foreground);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+      }
+
+      .form-submit:hover {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .form-submit:active {
+        transform: translateY(1px);
+      }
+
+      .form-submit::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.7s;
+      }
+
+      .form-submit:hover::before {
+        left: 100%;
+      }
+
+      .register-link {
+        margin-top: 1.5rem;
+        color: var(--muted-foreground);
+      }
+
+      .register-link a {
+        color: #4ade80;
+        text-decoration: none;
+        position: relative;
+        transition: color 0.2s;
+      }
+
+      .register-link a:hover {
+        color: #22c55e;
+      }
+
+      .register-link a::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 1px;
+        bottom: -2px;
+        left: 0;
+        background-color: #22c55e;
+        transform-origin: bottom right;
+        transition: transform 0.3s ease-out;
+      }
+
+      .register-link a:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+
+      .alert {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: var(--radius);
+        background-color: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fecaca;
+      }
+
+      .alert-success {
+        background-color: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #86efac;
+      }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+        <div class="bg-particle"></div>
+    </div>
+
+    <div class="login-container">
+        <h2 class="login-title">Welcome Back</h2>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input" required>
+            </div>
+            <button type="submit" class="form-submit">
+                <span>Login</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+            </button>
+        </form>
+        <p class="register-link">Don't have an account? <a href="/register">Register here</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add will-change property to optimize animations
+            const particles = document.querySelectorAll('.bg-particle');
+            particles.forEach(particle => {
+                particle.classList.add('will-change-transform');
+            });
+
+            // Animate form elements
+            const formElements = document.querySelectorAll('.form-group, .form-submit');
+            formElements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    element.style.transition = 'all 0.5s ease';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 100 * (index + 1));
+            });
+        });
+    </script>
+</body>
+</html>

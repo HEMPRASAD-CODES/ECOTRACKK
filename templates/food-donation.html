@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Donation - VIT EcoTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Base Styles */
+        :root {
+            --background: #050a14;
+            --foreground: #f8fafc;
+            --card: #0f172a;
+            --card-foreground: #f8fafc;
+            --primary: #22c55e;
+            --primary-foreground: #052e16;
+            --secondary: #1e293b;
+            --secondary-foreground: #f8fafc;
+            --muted: #1e293b;
+            --muted-foreground: #94a3b8;
+            --accent: #1e293b;
+            --accent-foreground: #f8fafc;
+            --destructive: #7f1d1d;
+            --destructive-foreground: #f8fafc;
+            --border: #1e293b;
+            --input: #1e293b;
+            --ring: #22c55e;
+            --radius: 0.75rem;
+            
+            /* Sidebar */
+            --sidebar-background: #0a101f;
+            --sidebar-foreground: #f8fafc;
+            --sidebar-accent: #111827;
+            --sidebar-accent-foreground: #f8fafc;
+            --sidebar-border: #1e293b;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            line-height: 1.6;
+            font-size: 16px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(34, 197, 94, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(0, 128, 128, 0.08) 0%, transparent 45%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(10, 16, 31, 0.9) 100%);
+            background-attachment: fixed;
+            background-size: 200% 200%, 200% 200%, 100% 100%;
+            animation: gradientMovement 15s ease infinite;
+        }
+
+        @keyframes gradientMovement {
+            0% {
+                background-position: 0% 0%, 100% 100%, 0% 0%;
+            }
+            50% {
+                background-position: 100% 100%, 0% 0%, 0% 0%;
+            }
+            100% {
+                background-position: 0% 0%, 100% 100%, 0% 0%;
+            }
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-background);
+            height: 100vh;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            z-index: 100;
+            border-right: 1px solid rgba(34, 197, 94, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #4ade80, #059669);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .menu-item {
+            border-radius: var(--radius);
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            color: var(--sidebar-foreground);
+            text-decoration: none;
+        }
+
+        .menu-link:hover {
+            background-color: var(--sidebar-accent);
+            color: var(--primary);
+        }
+
+        .menu-link.active {
+            background-color: var(--sidebar-accent);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .menu-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .logout-link {
+            color: #f87171;
+        }
+
+        .logout-link:hover {
+            color: #ef4444;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content.sidebar-open {
+            margin-left: var(--sidebar-width);
+        }
+
+        /* Menu Trigger */
+        .menu-trigger {
+            display: block;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .menu-trigger.sidebar-open {
+            left: calc(var(--sidebar-width) + 1rem);
+        }
+
+        .menu-trigger:hover {
+            background-color: rgba(15, 23, 42, 1);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+            transform: scale(1.05);
+        }
+
+        .menu-trigger svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--foreground);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-trigger:hover svg {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .menu-trigger .close-icon {
+            display: none;
+        }
+
+        .menu-trigger.sidebar-open .hamburger-icon {
+            display: none;
+        }
+
+        .menu-trigger.sidebar-open .close-icon {
+            display: block;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Content Card */
+        .content-card {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .content-card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .content-card p {
+            color: var(--muted-foreground);
+            line-height: 1.6;
+        }
+
+        /* Donation Form */
+        .donation-form {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .donation-form h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
+        }
+
+        .form-control {
+            background-color: var(--input);
+            border: 1px solid var(--border);
+            color: var(--foreground);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            color: var(--primary-foreground);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #16a34a;
+        }
+
+        /* Popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            z-index: 1000;
+        }
+
+        .popup .checkmark {
+            color: var(--primary);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .popup h3 {
+            color: var(--foreground);
+            margin-bottom: 1rem;
+        }
+
+        .popup button {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            background-color: var(--card);
+            border-top: 1px solid rgba(34, 197, 94, 0.2);
+            color: var(--muted-foreground);
+        }
+
+        footer h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        footer address {
+            font-style: normal;
+            line-height: 1.6;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #16a34a;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Trigger -->
+    <button class="menu-trigger" id="menuTrigger">
+        <svg class="hamburger-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                        <path d="M12 22V15.5"></path>
+                        <path d="M22 8.5L12 15.5L2 8.5"></path>
+                        <path d="M2 15.5L12 8.5L22 15.5"></path>
+                        <path d="M12 2V8.5"></path>
+                    </svg>
+                    <span class="logo-text">EcoTrack</span>
+                </a>
+            </div>
+            <div class="sidebar-content">
+                <nav class="sidebar-menu">
+                    <div class="menu-item">
+                        <a href="/index" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                            <span>Home</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/about" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <span>About</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/initiatives" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z"></path>
+                            </svg>
+                            <span>Initiatives</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/events" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>Events</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/gallery" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span>Gallery</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/faq" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <span>FAQ</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/contact" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span>Contact</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/food-wastage" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2h-4v6h4V2z"></path>
+                                <path d="M6 16a6 6 0 0 1 12 0v6H6v-6z"></path>
+                            </svg>
+                            <span>Parking Slot</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/ecoroute" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                            </svg>
+                            <span>Eco-Route</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a href="/blood-donation" class="menu-link">
+                            <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            <span>Blood Donation</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            <div class="sidebar-footer">
+                <div class="menu-item">
+                    <a href="/logout" class="menu-link logout-link">
+                        <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-card">
+                <h2>Food Donation Program</h2>
+                <p>
+                    VIT EcoTrack's Food Donation initiative aims to reduce food waste and support those in need. We provide a platform for students and staff to contribute surplus food to local communities and charitable organizations.
+                </p>
+                
+                <h3>Our Food Donation Goals</h3>
+                <ul>
+                    <li>Minimize food waste on campus</li>
+                    <li>Support local communities</li>
+                    <li>Promote social responsibility</li>
+                    <li>Create a sustainable food distribution network</li>
+                </ul>
+            </div>
+
+            <div class="donation-form">
+                <h3>Food Donation</h3>
+                <p>
+                    Help us reduce food waste and support our community by donating
+                    surplus food to nearby orphanages.
+                </p>
+                <div id="donationItems">
+                    <div class="donation-item">
+                        <div class="form-group">
+                            <label for="foodType">Food Type:</label>
+                            <select class="form-control" id="foodType" required>
+                                <option value="">Select Food Type</option>
+                                <option value="cooked">Cooked Meal</option>
+                                <option value="packaged">Packaged Food</option>
+                                <option value="fruits">Fruits/Vegetables</option>
+                                <option value="baked">Baked Goods</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity1">Approximate Quantity (kgs):</label>
+                            <input type="number" class="form-control" id="quantity1" min="0" step="0.5" />
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addDonationItem()">Add Another Item</button>
+                <br /><br />
+                <div class="form-group">
+                    <label for="orphanageSelect">Select Nearby Orphanage:</label>
+                    <select class="form-control" id="orphanageSelect">
+                        <option value="" disabled selected>-Select Orphanage-</option>
+                        <!-- Options will be populated from backend -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pickupTime">Pickup Time:</label>
+                    <input type="datetime-local" class="form-control" id="pickupTime" />
+                </div>
+                <div class="form-group">
+                    <label for="pickupPlace">Pickup Place:</label>
+                    <input type="text" class="form-control" id="pickupPlace" placeholder="Enter pickup location" />
+                </div>
+                <button class="btn btn-primary" onclick="initiateDonation()">Donate Food</button>
+                <div id="confirmationMessage" style="color: green; margin-top: 20px;"></div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <section>
+            <h2>Contact Us</h2>
+            <address>
+                VIT EcoTrack Team<br>
+                Vellore Institute of Technology<br>
+                Email: <a href="mailto:ecotrack@vit.ac.in">ecotrack@vit.ac.in</a><br>
+                Phone: +91-1234567890
+            </address>
+        </section>
+        <p>&copy; 2025 VIT EcoTrack. All rights reserved.</p>
+    </footer>
+
+    <div class="popup" id="successPopup">
+        <div class="checkmark">✔</div>
+        <h3>Donation Successful!</h3>
+        <p style="color: green; font-weight: bold;" id="popupDetails"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        // Cache DOM elements
+        const menuTrigger = document.getElementById('menuTrigger');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const hamburgerIcon = menuTrigger.querySelector('.hamburger-icon');
+        const closeIcon = menuTrigger.querySelector('.close-icon');
+        
+        // Direct style manipulation
+        function toggleSidebar() {
+            const isOpen = sidebar.style.left === '0px';
+            
+            if (isOpen) {
+                // Close sidebar
+                sidebar.style.left = '-250px';
+                mainContent.style.marginLeft = '0';
+                menuTrigger.style.left = '1rem';
+                menuTrigger.style.height = '2.5rem';
+                hamburgerIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+            } else {
+                // Open sidebar
+                sidebar.style.left = '0';
+                mainContent.style.marginLeft = '250px';
+                menuTrigger.style.left = '266px';
+                menuTrigger.style.height = '5.5rem';
+                hamburgerIcon.style.display = 'none';
+                closeIcon.style.display = 'block';
+            }
+        }
+        
+        // Simple click handler
+        menuTrigger.onclick = toggleSidebar;
+        
+        // Handle clicks outside
+        document.onclick = function(e) {
+            if (sidebar.style.left === '0' && !sidebar.contains(e.target) && e.target !== menuTrigger) {
+                toggleSidebar();
+            }
+        };
+        
+        // Handle window resize
+        window.onresize = function() {
+            if (window.innerWidth <= 768 && sidebar.style.left === '0') {
+                toggleSidebar();
+            }
+        };
+
+        let donationCount = 1;
+
+        function addDonationItem() {
+            donationCount++;
+            const donationItemsDiv = document.getElementById('donationItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'donation-item';
+            newItem.innerHTML = `
+                <div class="form-group">
+                    <label for="foodType${donationCount}">Food Type:</label>
+                    <select class="form-control" id="foodType${donationCount}" required>
+                        <option value="">Select Food Type</option>
+                        <option value="cooked">Cooked Meal</option>
+                        <option value="packaged">Packaged Food</option>
+                        <option value="fruits">Fruits/Vegetables</option>
+                        <option value="baked">Baked Goods</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity${donationCount}">Approximate Quantity (kgs):</label>
+                    <input type="number" class="form-control" id="quantity${donationCount}" min="0" step="0.5" />
+                </div>
+            `;
+            donationItemsDiv.appendChild(newItem);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/api/orphanages')
+                .then(response => response.json())
+                .then(data => {
+                    const orphanageSelect = document.getElementById('orphanageSelect');
+                    data.forEach(orphanage => {
+                        const option = document.createElement('option');
+                        option.value = orphanage.id;
+                        option.textContent = orphanage.name;
+                        orphanageSelect.appendChild(option);
+                    });
+                });
+        });
+
+        function initiateDonation() {
+            const donationItems = document.querySelectorAll(".donation-item");
+            let totalQuantity = 0;
+            let foodTypes = [];
+            const selectedOrphanage = document.getElementById("orphanageSelect").value;
+            const pickupTime = document.getElementById("pickupTime").value;
+            const pickupPlace = document.getElementById("pickupPlace").value;
+
+            donationItems.forEach((item) => {
+                const foodTypeSelect = item.querySelector("select");
+                const quantityInput = item.querySelector("input[type='number']");
+                const selectedFoodType = foodTypeSelect.value;
+                const quantity = parseFloat(quantityInput.value);
+
+                if (selectedFoodType && quantity > 0) {
+                    if (!foodTypes.includes(selectedFoodType)) {
+                        foodTypes.push(selectedFoodType);
+                    }
+                    totalQuantity += quantity;
+                }
+            });
+
+            if (foodTypes.length === 0 || !selectedOrphanage || !pickupTime || !pickupPlace) {
+                document.getElementById("confirmationMessage").innerText = "Please select at least one food type, an orphanage, and enter valid pickup details.";
+                return;
+            }
+
+            const donationData = {
+                orphanage_id: selectedOrphanage,
+                food_type: foodTypes.join(', '),
+                quantity: totalQuantity,
+                pickup_time: pickupTime,
+                pickup_place: pickupPlace
+            };
+
+            fetch('/api/donate_food', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(donationData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const popupDetails = `Food ${data.food_type} of quantity ${data.quantity} kg successfully scheduled for donation at ${pickupPlace} on ${pickupTime}.`;
+                document.getElementById("popupDetails").innerText = popupDetails;
+                showPopup();
+                clearForm();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("confirmationMessage").innerText = "An error occurred while scheduling the donation. Please try again.";
+            });
+        }
+
+        function showPopup() {
+            document.getElementById('successPopup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('successPopup').style.display = 'none';
+        }
+
+        function clearForm() {
+            document.getElementById("orphanageSelect").selectedIndex = 0;
+            document.getElementById("pickupTime").value = '';
+            document.getElementById("pickupPlace").value = '';
+            const donationItems = document.querySelectorAll(".donation-item");
+            donationItems.forEach((item, index) => {
+                if (index > 0) {
+                    item.remove();
+                } else {
+                    const foodTypeSelect = item.querySelector("select");
+                    const quantityInput = item.querySelector("input[type='number']");
+                    foodTypeSelect.selectedIndex = 0;
+                    quantityInput.value = '';
+                }
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

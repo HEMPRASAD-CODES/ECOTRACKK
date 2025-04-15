@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - VIT EcoTrack</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5fce8;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            margin: 0; /* Remove default margin */
+        }
+        header {
+            background-color: #2196F3; /* Changed to blue */
+            padding: 20px;
+            text-align: center;
+            color: white; /* Text color */
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav {
+            margin-top: 10px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin: 0 15px; 
+        }
+        nav ul li a {
+            color: white; /* Link color */
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #dfffd6;
+        }
+        main {
+            padding: 40px 20px;
+        }
+        h2 {
+            color: #0D47A1; /* Changed to blue */
+            margin: 20px 0;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1); /* Transparent background */
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        table th, table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Light border for better visibility */
+            text-align: center;
+            color: black; /* Change text color to black for better visibility */
+        }
+        table th {
+            background: transparent; /* Semi-transparent background for header */
+            color: black; /* Ensure header text is white */
+            font-weight: bold;
+        }
+        table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent background for even rows */
+        }
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.2); /* Lighten on hover */
+            transform: scale(1.02);
+            transition: all 0.3s ease;
+        }
+        footer {
+            background: #2196F3; /* Changed to blue */
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        footer h2 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard - VIT EcoTRACK</h1>
+        <nav>
+            <ul>
+                <li><a href="/admin/parking">Parking Verification</a></li>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>User Points and Progress</h2>
+        <table>
+            <tr><th>Username</th><th>Email</th><th>Points</th><th>Badge</th></tr>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.points }}</td>
+                <td>{{ user.badge }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
